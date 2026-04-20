@@ -6,7 +6,7 @@
 
 ## 封装结构
 
-- `skill.md`：根目录标准 Skill 入口文档
+- `SKILL.md`：根目录标准 Skill 入口文档（YAML Frontmatter）
 - `skill/adapter.ts`：统一命令入口（health/init/create/show/turn/prompt/history/stats）
 - `runtime/*.py`：规则引擎与 SQLite 持久化
 - `scripts/check_env.sh`：部署前环境自检

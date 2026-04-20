@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "release" / "darkoffice-skill-bundle"
 
 INCLUDE_PATHS = [
-    "skill.md",
+    "SKILL.md",
     "skill/adapter.ts",
     "skill/darkoffice-persistent-skill.md",
     "runtime/__init__.py",
