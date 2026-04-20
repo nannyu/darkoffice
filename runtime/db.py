@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 
 
-DEFAULT_DB_PATH = Path("runtime/darkoffice.sqlite3")
+DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "runtime" / "darkoffice.sqlite3"
 
 
 def connect(db_path: str | None = None) -> sqlite3.Connection:
@@ -37,9 +37,14 @@ def init_db(conn: sqlite3.Connection) -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id TEXT NOT NULL,
             turn_index INTEGER NOT NULL,
+            character_id TEXT NOT NULL DEFAULT 'CHR_01',
+            event_id TEXT NOT NULL DEFAULT 'EVT_GENERIC',
             action_type TEXT NOT NULL,
+            action_mod INTEGER NOT NULL DEFAULT 0,
             roll_value INTEGER NOT NULL,
+            total_score INTEGER NOT NULL DEFAULT 0,
             result_tier TEXT NOT NULL,
+            failure_type TEXT,
             delta_json TEXT NOT NULL,
             state_json TEXT NOT NULL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,4 +52,24 @@ def init_db(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    _migrate_turn_logs(conn)
     conn.commit()
+
+
+def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(row[1] == column for row in rows)
+
+
+def _migrate_turn_logs(conn: sqlite3.Connection) -> None:
+    # 向后兼容已有数据库：逐列补齐分析所需字段。
+    additions = [
+        ("character_id", "TEXT NOT NULL DEFAULT 'CHR_01'"),
+        ("event_id", "TEXT NOT NULL DEFAULT 'EVT_GENERIC'"),
+        ("action_mod", "INTEGER NOT NULL DEFAULT 0"),
+        ("total_score", "INTEGER NOT NULL DEFAULT 0"),
+        ("failure_type", "TEXT"),
+    ]
+    for name, sql_type in additions:
+        if not _column_exists(conn, "turn_logs", name):
+            conn.execute(f"ALTER TABLE turn_logs ADD COLUMN {name} {sql_type}")

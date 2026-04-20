@@ -9,7 +9,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from runtime.db import connect, init_db
-from runtime.engine import apply_turn, create_session, get_session
+from runtime.engine import apply_turn, create_session, get_action_stats, get_history, get_session
 
 
 def main() -> None:
@@ -28,7 +28,14 @@ def main() -> None:
     turn_p = sub.add_parser("turn")
     turn_p.add_argument("session_id")
     turn_p.add_argument("--action", default="DEFAULT_ACTION")
-    turn_p.add_argument("--mod", type=int, default=0)
+    turn_p.add_argument("--mod", type=int, default=None)
+
+    history_p = sub.add_parser("history")
+    history_p.add_argument("session_id")
+    history_p.add_argument("--limit", type=int, default=10)
+
+    stats_p = sub.add_parser("stats")
+    stats_p.add_argument("session_id")
 
     args = parser.parse_args()
 
@@ -55,15 +62,33 @@ def main() -> None:
                 {
                     "session_id": result.session_id,
                     "turn_index": result.turn_index,
+                    "character_id": result.character_id,
+                    "event_id": result.event_id,
                     "roll_value": result.roll_value,
+                    "total_score": result.total_score,
+                    "action_mod": result.action_mod,
                     "result_tier": result.result_tier,
+                    "failure_type": result.failure_type,
                     "delta": result.delta,
                     "state": result.state,
+                    "statuses": result.statuses,
+                    "hazards": result.hazards,
+                    "projects": result.projects,
                 },
                 ensure_ascii=False,
                 indent=2,
             )
         )
+        return
+
+    if args.cmd == "history":
+        data = get_history(args.session_id, args.limit, args.db)
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return
+
+    if args.cmd == "stats":
+        data = get_action_stats(args.session_id, args.db)
+        print(json.dumps(data, ensure_ascii=False, indent=2))
         return
 
 

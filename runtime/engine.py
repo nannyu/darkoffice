@@ -1,8 +1,11 @@
 import json
 import random
+import sqlite3
 from dataclasses import dataclass
+from typing import Optional
 
 from runtime.db import connect, init_db
+from runtime.content import ACTION_MODIFIERS, CHARACTERS, EVENTS_BY_CHARACTER
 
 
 INITIAL_STATE = {
@@ -14,15 +17,37 @@ INITIAL_STATE = {
     "cor": 0,
 }
 
+# 每 24 回合为 1 个工作日（每回合 20 分钟，24 回合 = 8 小时）
+TURNS_PER_DAY = 24
+
 
 @dataclass
 class TurnResult:
     session_id: str
     turn_index: int
+    day: int
+    time_period: str
+    character_id: str
+    event_id: str
     roll_value: int
+    total_score: int
+    action_mod: int
     result_tier: str
+    failure_type: str | None
     delta: dict
     state: dict
+    statuses: list[dict]
+    hazards: list[dict]
+    projects: list[dict]
+
+
+def _json_load(text: str | None, fallback: object) -> object:
+    if not text:
+        return fallback
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return fallback
 
 
 def _tier_by_roll(score: int) -> str:
@@ -47,122 +72,463 @@ def _clamp_state(state: dict) -> dict:
     return state
 
 
+def _status_modifier(state: dict) -> int:
+    mod = 0
+    if state["en"] >= 70:
+        mod += 2
+    elif state["en"] < 10:
+        mod -= 5
+    elif state["en"] < 30:
+        mod -= 2
+    if state["st"] < 30:
+        mod -= 1
+    if state["kpi"] < 40:
+        mod -= 1
+    if state["risk"] >= 50:
+        mod -= 1
+    return mod
+
+
+def _derive_statuses(state: dict, event_id: str, hazards: list[dict]) -> list[dict]:
+    """根据当前状态推导持续状态。
+
+    event_id 用于判断特定事件触发的状态（如 EVT_03/EVT_11 触发"被盯上"），
+    而非从隐患倒计时推导。
+    """
+    statuses = []
+    if state["en"] < 10:
+        statuses.append({"id": "STATUS_EXHAUSTED", "name": "濒临崩溃", "duration": 1})
+    elif state["en"] < 30:
+        statuses.append({"id": "STATUS_LOW_EN", "name": "低精力", "duration": 1})
+    if state["st"] < 30:
+        statuses.append({"id": "STATUS_LOW_ST", "name": "低体力", "duration": 1})
+    if state["kpi"] < 40:
+        statuses.append({"id": "STATUS_LOW_KPI", "name": "危险绩效", "duration": 1})
+    if state["risk"] >= 50:
+        statuses.append({"id": "STATUS_HIGH_RISK", "name": "高风险", "duration": 1})
+    if state["cor"] >= 50:
+        statuses.append({"id": "STATUS_HIGH_COR", "name": "高污染", "duration": 1})
+    # "被盯上"由特定事件触发，不再从隐患倒计时推导
+    if event_id in {"EVT_03", "EVT_11", "EVT_16"}:
+        statuses.append({"id": "STATUS_UNDER_WATCH", "name": "被盯上", "duration": 2})
+    return statuses
+
+
+def _time_period(turn_index: int) -> str:
+    """根据回合数计算当前时间段。
+
+    每 24 回合 = 1 个工作日，按 20 分钟/回合映射到职场时间。
+    """
+    day_turn = turn_index % TURNS_PER_DAY
+    if day_turn < 9:          # 09:00-12:00 上午
+        return "上午"
+    elif day_turn < 12:       # 12:00-13:00 午休
+        return "午休"
+    elif day_turn < 21:       # 13:00-18:00 下午
+        return "下午"
+    elif day_turn < 24:       # 18:00-21:00 加班
+        return "加班"
+    else:                     # 21:00+ 深夜
+        return "深夜"
+
+
+def _time_period_weight_modifier(time_period: str) -> dict[str, float]:
+    """不同时间段的角色权重修正。"""
+    modifiers = {
+        "上午": {"CHR_01": 1.0, "CHR_02": 1.0, "CHR_03": 1.2, "CHR_04": 0.8, "CHR_05": 1.0, "CHR_06": 0.8},
+        "午休": {"CHR_01": 0.5, "CHR_02": 1.5, "CHR_03": 0.5, "CHR_04": 0.5, "CHR_05": 0.5, "CHR_06": 0.3},
+        "下午": {"CHR_01": 1.0, "CHR_02": 1.0, "CHR_03": 1.5, "CHR_04": 1.0, "CHR_05": 1.2, "CHR_06": 1.0},
+        "加班": {"CHR_01": 1.5, "CHR_02": 0.5, "CHR_03": 1.8, "CHR_04": 0.8, "CHR_05": 1.0, "CHR_06": 0.5},
+        "深夜": {"CHR_01": 1.8, "CHR_02": 0.3, "CHR_03": 0.8, "CHR_04": 1.2, "CHR_05": 0.5, "CHR_06": 0.3},
+    }
+    return modifiers.get(time_period, modifiers["上午"])
+
+
+def _weighted_pick(options: list[tuple[object, int]]) -> object:
+    pool = [item for item, _ in options]
+    weights = [max(1, int(w)) for _, w in options]
+    return random.choices(pool, weights=weights, k=1)[0]
+
+
+def _pick_character(session: dict, conn: sqlite3.Connection, time_period: str) -> str:
+    """抽取本回合来访角色，接收已打开的连接。"""
+    weighted = []
+    period_mods = _time_period_weight_modifier(time_period)
+    for c in CHARACTERS:
+        w = c.base_weight
+        w = int(w * period_mods.get(c.character_id, 1.0))
+        if c.character_id == "CHR_04" and session["kpi"] < 40:
+            w = int(w * 2)
+        if c.character_id == "CHR_05" and session["risk"] >= 50:
+            w = int(w * 1.6)
+        if c.character_id == "CHR_06" and session["cor"] >= 50:
+            w = int(w * 1.6)
+        weighted.append((c.character_id, w))
+
+    prev = conn.execute(
+        "SELECT character_id FROM turn_logs WHERE session_id = ? ORDER BY id DESC LIMIT 1",
+        (session["session_id"],),
+    ).fetchone()
+    if prev:
+        previous_id = prev["character_id"]
+        weighted = [(cid, int(w * 0.45) if cid == previous_id else w) for cid, w in weighted]
+    return _weighted_pick(weighted)
+
+
+def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection) -> dict:
+    """抽取本回合事件，接收已打开的连接。"""
+    pool = EVENTS_BY_CHARACTER.get(character_id, [])
+    if not pool:
+        return {
+            "event_id": "EVT_GENERIC",
+            "base_effect": {"hp": 0, "en": -8, "st": -4, "kpi": 0, "risk": 2, "cor": 0},
+        }
+    prev = conn.execute(
+        "SELECT event_id FROM turn_logs WHERE session_id = ? ORDER BY id DESC LIMIT 1",
+        (session_id,),
+    ).fetchone()
+    prev_event = prev["event_id"] if prev else None
+    weighted = []
+    for event in pool:
+        weighted.append((event, 2 if event.event_id == prev_event else 10))
+    picked = _weighted_pick(weighted)
+    return {"event_id": picked.event_id, "base_effect": picked.base_effect}
+
+
+# ---------------------------------------------------------------------------
+# 隐患生成：覆盖文档中定义的所有事件-隐患映射
+# ---------------------------------------------------------------------------
+
+# 事件→隐患映射表（对应 Skill 文档 possible_followups）
+_EVENT_HAZARD_MAP: dict[str, dict] = {
+    "EVT_04": {"id": "HZD_RESPONSIBILITY", "name": "责任未明确", "countdown": 3, "severity": 2},
+    "EVT_06": {"id": "HZD_RESPONSIBILITY", "name": "责任未明确", "countdown": 3, "severity": 2},
+    "EVT_07": {"id": "HZD_ORAL_PROMISE", "name": "口头承诺", "countdown": 2, "severity": 1},
+    "EVT_08": {"id": "HZD_REQ_UNCONFIRMED", "name": "需求未确认", "countdown": 3, "severity": 1},
+    "EVT_10": {"id": "HZD_ORAL_PROMISE", "name": "口头承诺", "countdown": 2, "severity": 1},
+    "EVT_17": {"id": "HZD_BACKDATED_DOC", "name": "倒签文件", "countdown": 5, "severity": 2},
+    "EVT_18": {"id": "HZD_MISSING_RECEIPT", "name": "报销缺材料", "countdown": 3, "severity": 1},
+    "EVT_19": {"id": "HZD_COMPLIANCE", "name": "合规隐患", "countdown": 3, "severity": 2},
+    "EVT_23": {"id": "HZD_WEEKLY_REPORT", "name": "周报未交", "countdown": 2, "severity": 1},
+    "EVT_24": {"id": "HZD_UNREAD_MSG", "name": "未回消息", "countdown": 2, "severity": 1},
+}
+
+# 行动→隐患映射
+_ACTION_HAZARD_MAP: dict[str, dict] = {
+    "SHIFT_BLAME": {"id": "HZD_ACTION_BLAME", "name": "甩锅痕迹", "countdown": 3, "severity": 1},
+    "DELAY_AVOID": {"id": "HZD_ACTION_DELAY", "name": "拖延积压", "countdown": 2, "severity": 1},
+}
+
+
+def _new_hazard(event_id: str, action_type: str) -> dict | None:
+    """根据事件和行动类型生成隐患卡。"""
+    # 优先检查事件映射
+    hazard = _EVENT_HAZARD_MAP.get(event_id)
+    if hazard:
+        return dict(hazard)
+    # 其次检查行动映射
+    action_hazard = _ACTION_HAZARD_MAP.get(action_type.upper())
+    if action_hazard:
+        return dict(action_hazard)
+    return None
+
+
+def _tick_hazards(hazards: list[dict]) -> tuple[list[dict], dict]:
+    delta = {"hp": 0, "en": 0, "st": 0, "kpi": 0, "risk": 0, "cor": 0}
+    remaining = []
+    for hazard in hazards:
+        current = dict(hazard)
+        current["countdown"] = int(current.get("countdown", 1)) - 1
+        if current["countdown"] <= 0:
+            severity = int(current.get("severity", 1))
+            delta["hp"] -= 2 * severity
+            delta["kpi"] -= 4 * severity
+            delta["risk"] += 6 * severity
+        else:
+            remaining.append(current)
+    return remaining, delta
+
+
+def _tick_projects(projects: list[dict], action_type: str) -> tuple[list[dict], dict]:
+    delta = {"hp": 0, "en": 0, "st": 0, "kpi": 0, "risk": 0, "cor": 0}
+    progress_actions = {"DIRECT_EXECUTE", "WORK_OVERTIME", "REQUEST_CONFIRMATION"}
+    updated = []
+    for project in projects:
+        current = dict(project)
+        pressure = int(current.get("pressure", 1))
+        delta["en"] -= pressure
+        delta["st"] -= max(1, pressure // 2)
+        if action_type.upper() in progress_actions:
+            current["progress"] = int(current.get("progress", 0)) + 1
+            delta["kpi"] += 1
+        if int(current.get("progress", 0)) >= int(current.get("target", 5)):
+            delta["kpi"] += 3
+            delta["risk"] -= 2
+            continue
+        updated.append(current)
+    return updated, delta
+
+
+def _merge_delta(*parts: dict) -> dict:
+    merged = {"hp": 0, "en": 0, "st": 0, "kpi": 0, "risk": 0, "cor": 0}
+    for part in parts:
+        for key in merged:
+            merged[key] += int(part.get(key, 0))
+    return merged
+
+
+def _resolve_failure(state: dict) -> str | None:
+    if state["hp"] <= 0:
+        return "HP_DEPLETED"
+    if state["kpi"] <= 0:
+        return "KPI_DEPLETED"
+    return None
+
+
+def _replenish_project() -> dict:
+    """当所有项目完成时，自动补充新项目（已文档化）。"""
+    return {"id": "PRJ_WEEKLY", "name": "本周交付", "progress": 0, "target": 5, "pressure": 2}
+
+
 def create_session(session_id: str, db_path: str | None = None) -> dict:
     conn = connect(db_path)
-    init_db(conn)
-    conn.execute(
-        """
-        INSERT INTO game_sessions (
-            session_id, hp, en, st, kpi, risk, cor
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            session_id,
-            INITIAL_STATE["hp"],
-            INITIAL_STATE["en"],
-            INITIAL_STATE["st"],
-            INITIAL_STATE["kpi"],
-            INITIAL_STATE["risk"],
-            INITIAL_STATE["cor"],
-        ),
-    )
-    conn.commit()
+    try:
+        init_db(conn)
+        projects = [_replenish_project()]
+        conn.execute(
+            """
+            INSERT INTO game_sessions (
+                session_id, hp, en, st, kpi, risk, cor, project_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                INITIAL_STATE["hp"],
+                INITIAL_STATE["en"],
+                INITIAL_STATE["st"],
+                INITIAL_STATE["kpi"],
+                INITIAL_STATE["risk"],
+                INITIAL_STATE["cor"],
+                json.dumps(projects, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
     return get_session(session_id, db_path)
 
 
 def get_session(session_id: str, db_path: str | None = None) -> dict:
     conn = connect(db_path)
-    row = conn.execute(
-        "SELECT * FROM game_sessions WHERE session_id = ?",
-        (session_id,),
-    ).fetchone()
-    if not row:
-        raise ValueError(f"session not found: {session_id}")
-    return dict(row)
+    try:
+        row = conn.execute("SELECT * FROM game_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not row:
+            raise ValueError(f"session not found: {session_id}")
+        return dict(row)
+    finally:
+        conn.close()
 
 
 def apply_turn(
     session_id: str,
     action_type: str,
-    action_mod: int = 0,
+    action_mod: int | None = None,
     db_path: str | None = None,
 ) -> TurnResult:
     conn = connect(db_path)
-    session = conn.execute(
-        "SELECT * FROM game_sessions WHERE session_id = ?",
-        (session_id,),
-    ).fetchone()
-    if not session:
-        raise ValueError(f"session not found: {session_id}")
+    try:
+        session = conn.execute("SELECT * FROM game_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not session:
+            raise ValueError(f"session not found: {session_id}")
+        raw_session = dict(session)
+        hazards = _json_load(raw_session.get("hazard_json"), [])
+        projects = _json_load(raw_session.get("project_json"), [])
+        if not isinstance(hazards, list):
+            hazards = []
+        if not isinstance(projects, list):
+            projects = []
 
-    roll = random.randint(1, 20)
-    score = roll + action_mod
-    tier = _tier_by_roll(score)
+        # ---- 时间与日期 ----
+        new_turn = int(raw_session["turn_index"]) + 1
+        new_day = int(raw_session.get("day", 1)) + (new_turn // TURNS_PER_DAY - int(raw_session["turn_index"]) // TURNS_PER_DAY)
+        time_period = _time_period(new_turn)
 
-    # 用最小可运行规则跑通持久化闭环，后续可替换为完整文档规则。
-    base = {"hp": 0, "en": -10, "st": -5, "kpi": 0, "risk": 1, "cor": 0}
-    multiplier = {
-        "CRITICAL_FAIL": 1.5,
-        "FAIL": 1.0,
-        "BARELY": 0.7,
-        "SUCCESS": 0.4,
-        "CRITICAL_SUCCESS": 0.2,
-    }[tier]
+        # ---- 事件生成 ----
+        character_id = _pick_character(raw_session, conn, time_period)
+        event = _pick_event(session_id, character_id, conn)
+        auto_action_mod = ACTION_MODIFIERS.get(action_type.upper(), 0)
+        resolved_action_mod = auto_action_mod if action_mod is None else action_mod
+        status_mod = _status_modifier(raw_session)
 
-    delta = {k: int(v * multiplier) for k, v in base.items()}
-    new_state = {
-        "hp": session["hp"] + delta["hp"],
-        "en": session["en"] + delta["en"],
-        "st": session["st"] + delta["st"],
-        "kpi": session["kpi"] + delta["kpi"],
-        "risk": session["risk"] + delta["risk"],
-        "cor": session["cor"] + delta["cor"],
-    }
-    new_state = _clamp_state(new_state)
-    new_turn = int(session["turn_index"]) + 1
+        # ---- 骰子结算 ----
+        roll = random.randint(1, 20)
+        score = roll + resolved_action_mod + status_mod
+        tier = _tier_by_roll(score)
+        multiplier = {"CRITICAL_FAIL": 1.5, "FAIL": 1.0, "BARELY": 0.7, "SUCCESS": 0.4, "CRITICAL_SUCCESS": 0.2}[tier]
 
-    conn.execute(
-        """
-        UPDATE game_sessions
-        SET turn_index = ?, hp = ?, en = ?, st = ?, kpi = ?, risk = ?, cor = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = ?
-        """,
-        (
-            new_turn,
-            new_state["hp"],
-            new_state["en"],
-            new_state["st"],
-            new_state["kpi"],
-            new_state["risk"],
-            new_state["cor"],
-            session_id,
-        ),
-    )
-    conn.execute(
-        """
-        INSERT INTO turn_logs (
-            session_id, turn_index, action_type, roll_value, result_tier,
-            delta_json, state_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            session_id,
-            new_turn,
-            action_type,
-            roll,
-            tier,
-            json.dumps(delta, ensure_ascii=False),
-            json.dumps(new_state, ensure_ascii=False),
-        ),
-    )
-    conn.commit()
+        # 正值需区分"奖励"和"惩罚"属性：
+        # 奖励属性（kpi 正值）：好结果保留/增加，坏结果减少
+        # 惩罚属性（risk/cor 正值、所有负值）：好结果减轻，坏结果加重
+        _PENALTY_WHEN_POSITIVE = {"risk", "cor"}
+        base_event_delta = {}
+        for k, v in event["base_effect"].items():
+            if v >= 0 and k not in _PENALTY_WHEN_POSITIVE:
+                base_event_delta[k] = int(v * (2.0 - multiplier))
+            else:
+                base_event_delta[k] = int(v * multiplier)
 
-    return TurnResult(
-        session_id=session_id,
-        turn_index=new_turn,
-        roll_value=roll,
-        result_tier=tier,
-        delta=delta,
-        state=new_state,
-    )
+        # ---- 行动修正 ----
+        action_delta = {"hp": 0, "en": 0, "st": 0, "kpi": 0, "risk": 0, "cor": 0}
+        if tier == "CRITICAL_FAIL":
+            action_delta["risk"] += 5
+        if action_type.upper() == "EMAIL_TRACE":
+            action_delta["risk"] -= 8
+        if action_type.upper() == "SHIFT_BLAME":
+            action_delta["cor"] += 6
+            action_delta["risk"] += 3
+        if action_type.upper() == "WORK_OVERTIME":
+            action_delta["en"] -= 4
+            action_delta["st"] -= 4
+        if action_type.upper() == "RECOVERY_BREAK":
+            action_delta["en"] += 10
+            action_delta["st"] += 6
+            action_delta["kpi"] -= 2
+
+        # ---- 系统结算 ----
+        hazards, hazard_tick_delta = _tick_hazards(hazards)
+        projects, project_tick_delta = _tick_projects(projects, action_type)
+        new_hazard = _new_hazard(event["event_id"], action_type)
+        if new_hazard and not any(h.get("id") == new_hazard["id"] for h in hazards):
+            hazards.append(new_hazard)
+
+        delta = _merge_delta(base_event_delta, action_delta, hazard_tick_delta, project_tick_delta)
+
+        # 项目自动补充：当所有项目完成后，自动分配新项目
+        if not projects:
+            projects = [_replenish_project()]
+
+        new_state = {
+            "hp": raw_session["hp"] + delta["hp"],
+            "en": raw_session["en"] + delta["en"],
+            "st": raw_session["st"] + delta["st"],
+            "kpi": raw_session["kpi"] + delta["kpi"],
+            "risk": raw_session["risk"] + delta["risk"],
+            "cor": raw_session["cor"] + delta["cor"],
+        }
+        new_state = _clamp_state(new_state)
+        statuses = _derive_statuses(new_state, event["event_id"], hazards)
+        failure_type = _resolve_failure(new_state)
+
+        conn.execute(
+            """
+            UPDATE game_sessions
+            SET turn_index = ?, day = ?, hp = ?, en = ?, st = ?, kpi = ?, risk = ?, cor = ?,
+                status_json = ?, hazard_json = ?, project_json = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE session_id = ?
+            """,
+            (
+                new_turn,
+                new_day,
+                new_state["hp"],
+                new_state["en"],
+                new_state["st"],
+                new_state["kpi"],
+                new_state["risk"],
+                new_state["cor"],
+                json.dumps(statuses, ensure_ascii=False),
+                json.dumps(hazards, ensure_ascii=False),
+                json.dumps(projects, ensure_ascii=False),
+                session_id,
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO turn_logs (
+                session_id, turn_index, character_id, event_id, action_type, action_mod,
+                roll_value, total_score, result_tier, failure_type, delta_json, state_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                new_turn,
+                character_id,
+                event["event_id"],
+                action_type,
+                resolved_action_mod,
+                roll,
+                score,
+                tier,
+                failure_type,
+                json.dumps(delta, ensure_ascii=False),
+                json.dumps(new_state, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+
+        return TurnResult(
+            session_id=session_id,
+            turn_index=new_turn,
+            day=new_day,
+            time_period=time_period,
+            character_id=character_id,
+            event_id=event["event_id"],
+            roll_value=roll,
+            total_score=score,
+            action_mod=resolved_action_mod,
+            result_tier=tier,
+            failure_type=failure_type,
+            delta=delta,
+            state=new_state,
+            statuses=statuses,
+            hazards=hazards,
+            projects=projects,
+        )
+    finally:
+        conn.close()
+
+
+def get_history(session_id: str, limit: int = 10, db_path: str | None = None) -> list[dict]:
+    conn = connect(db_path)
+    try:
+        rows = conn.execute(
+            """
+            SELECT turn_index, character_id, event_id, action_type, action_mod,
+                   roll_value, total_score, result_tier, failure_type, delta_json, created_at
+            FROM turn_logs
+            WHERE session_id = ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (session_id, limit),
+        ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_action_stats(session_id: str, db_path: str | None = None) -> list[dict]:
+    conn = connect(db_path)
+    try:
+        rows = conn.execute(
+            """
+            SELECT action_type,
+                   COUNT(*) AS turns,
+                   ROUND(AVG(total_score), 2) AS avg_score,
+                   SUM(CASE WHEN result_tier IN ('SUCCESS', 'CRITICAL_SUCCESS') THEN 1 ELSE 0 END) AS success_count,
+                   SUM(CASE WHEN result_tier = 'CRITICAL_FAIL' THEN 1 ELSE 0 END) AS critical_fail_count
+            FROM turn_logs
+            WHERE session_id = ?
+            GROUP BY action_type
+            ORDER BY turns DESC, avg_score DESC
+            """,
+            (session_id,),
+        ).fetchall()
+        stats = []
+        for row in rows:
+            item = dict(row)
+            turns = item["turns"] or 1
+            item["success_rate"] = round(item["success_count"] / turns, 3)
+            stats.append(item)
+        return stats
+    finally:
+        conn.close()

@@ -1,0 +1,36 @@
+{
+  "name": "darkoffice",
+  "version": "1.0.0",
+  "description": "《暗黑职场》是一个以恶性职场为主题的卡牌驱动叙事生存项目。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "skill:health": "tsx skill/adapter.ts health",
+    "skill:init": "tsx skill/adapter.ts init",
+    "skill:create": "tsx skill/adapter.ts create",
+    "skill:show": "tsx skill/adapter.ts show",
+    "skill:turn": "tsx skill/adapter.ts turn",
+    "skill:history": "tsx skill/adapter.ts history",
+    "skill:stats": "tsx skill/adapter.ts stats",
+    "sim:balance": "python3 scripts/simulate_balance.py --runs 20 --turns 30",
+    "test": "npm run skill:health"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nannyu/darkoffice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nannyu/darkoffice/issues"
+  },
+  "homepage": "https://github.com/nannyu/darkoffice#readme",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}

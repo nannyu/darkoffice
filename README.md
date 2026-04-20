@@ -93,3 +93,30 @@ docs/
 2. `python3 scripts/game_state_cli.py create demo`
 3. `python3 scripts/game_state_cli.py turn demo --action EMAIL_TRACE --mod 3`
 4. `python3 scripts/game_state_cli.py show demo`
+
+TS 适配层（用于 openclaw/workbuddy 调用）：
+
+1. `npm run skill:health`
+2. `npm run skill:init`
+3. `npm run skill:create -- demo`
+4. `npm run skill:turn -- demo --action EMAIL_TRACE --mod 3`
+5. `npm run skill:show -- demo`
+6. `npm run skill:history -- demo --limit 5`
+7. `npm run skill:stats -- demo`
+
+新增能力说明：
+
+- 引擎已接入角色权重抽取与事件池抽取（含轻度反重复）
+- 回合结算包含：行动修正 + 状态阈值修正 + 结果倍率
+- `turn_logs` 记录角色、事件、总判定值、失败类型，便于平衡性分析
+- 已接入隐患倒计时与项目持续压迫（持久化到 `game_sessions`）
+
+上线前回归：
+
+1. `python3 scripts/game_state_cli.py init`
+2. `python3 scripts/game_state_cli.py create release-smoke`
+3. `python3 scripts/game_state_cli.py turn release-smoke --action EMAIL_TRACE`
+4. `python3 scripts/game_state_cli.py show release-smoke`
+5. `python3 scripts/game_state_cli.py history release-smoke --limit 5`
+6. `python3 scripts/game_state_cli.py stats release-smoke`
+7. `python3 scripts/simulate_balance.py --runs 20 --turns 30`
