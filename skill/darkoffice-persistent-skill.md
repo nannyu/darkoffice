@@ -16,8 +16,10 @@
 2. 每个回合在输出叙事前，必须执行一次结算：
    - `python3 scripts/game_state_cli.py turn <session_id> --action "<ACTION_TYPE>"`
    - 仅在需要强制覆盖修正时才传 `--mod <N>`
+   - `turn` 的响应必须直接使用 `next_prompt` 渲染下一事件与下一组选项，不能等待用户额外输入“继续”
 3. 每次回合输出顶部必须显示状态栏（读取最新状态）：
    - `python3 scripts/game_state_cli.py show <session_id>`
+   - 或使用 `python3 scripts/game_state_cli.py prompt <session_id>` 直接获取下一回合完整展示块
 4. 禁止跳过数据库写入；任何只在内存中"口算"的数值结算都视为无效回合。
 
 ## 状态栏格式

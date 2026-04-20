@@ -9,7 +9,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from runtime.db import connect, init_db
-from runtime.engine import apply_turn, create_session, get_action_stats, get_history, get_session
+from runtime.engine import (
+    apply_turn,
+    build_next_prompt,
+    create_session,
+    get_action_stats,
+    get_history,
+    get_session,
+)
 
 
 def main() -> None:
@@ -37,6 +44,9 @@ def main() -> None:
     stats_p = sub.add_parser("stats")
     stats_p.add_argument("session_id")
 
+    prompt_p = sub.add_parser("prompt")
+    prompt_p.add_argument("session_id")
+
     args = parser.parse_args()
 
     if args.cmd == "init":
@@ -62,6 +72,8 @@ def main() -> None:
                 {
                     "session_id": result.session_id,
                     "turn_index": result.turn_index,
+                    "day": result.day,
+                    "time_period": result.time_period,
                     "character_id": result.character_id,
                     "event_id": result.event_id,
                     "roll_value": result.roll_value,
@@ -74,6 +86,7 @@ def main() -> None:
                     "statuses": result.statuses,
                     "hazards": result.hazards,
                     "projects": result.projects,
+                    "next_prompt": result.next_prompt,
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -88,6 +101,11 @@ def main() -> None:
 
     if args.cmd == "stats":
         data = get_action_stats(args.session_id, args.db)
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return
+
+    if args.cmd == "prompt":
+        data = build_next_prompt(args.session_id, args.db)
         print(json.dumps(data, ensure_ascii=False, indent=2))
         return
 

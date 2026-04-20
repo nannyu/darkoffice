@@ -2,6 +2,7 @@
   "name": "darkoffice-skill-bundle",
   "version": "1.0.0",
   "files": [
+    "skill.md",
     "skill/adapter.ts",
     "skill/darkoffice-persistent-skill.md",
     "runtime/__init__.py",

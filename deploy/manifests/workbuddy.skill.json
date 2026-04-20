@@ -13,7 +13,8 @@
     "show": "npx tsx skill/adapter.ts show <session_id>",
     "turn": "npx tsx skill/adapter.ts turn <session_id> --action <ACTION_TYPE>",
     "history": "npx tsx skill/adapter.ts history <session_id> --limit 10",
-    "stats": "npx tsx skill/adapter.ts stats <session_id>"
+    "stats": "npx tsx skill/adapter.ts stats <session_id>",
+    "prompt": "npx tsx skill/adapter.ts prompt <session_id>"
   },
   "requirements": {
     "python": ">=3.10",
@@ -21,6 +22,8 @@
   },
   "notes": [
     "command returns JSON payload",
-    "persisted state is stored in runtime/darkoffice.sqlite3"
+    "persisted state is stored in runtime/darkoffice.sqlite3",
+    "after user selects an option, render payload.next_prompt immediately",
+    "do not wait for an extra 'continue' user message between turns"
   ]
 }

@@ -12,9 +12,11 @@
     "next_turn": "npm run skill:turn -- <session_id> --action <ACTION_TYPE>",
     "query_state": "npm run skill:show -- <session_id>",
     "query_history": "npm run skill:history -- <session_id> --limit 10",
-    "query_stats": "npm run skill:stats -- <session_id>"
+    "query_stats": "npm run skill:stats -- <session_id>",
+    "next_prompt": "npm run skill:prompt -- <session_id>"
   },
   "verification": [
     "python3 scripts/simulate_balance.py --runs 20 --turns 30"
-  ]
+  ],
+  "interaction_rule": "A single option input must produce both settlement and next_prompt for next turn rendering."
 }

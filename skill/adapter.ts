@@ -1,6 +1,14 @@
 import { spawnSync } from "node:child_process";
 
-type Command = "health" | "init" | "create" | "show" | "turn" | "history" | "stats";
+type Command =
+  | "health"
+  | "init"
+  | "create"
+  | "show"
+  | "turn"
+  | "history"
+  | "stats"
+  | "prompt";
 
 function runPython(args: string[]): string {
   const result = spawnSync("python3", ["scripts/game_state_cli.py", ...args], {
@@ -35,7 +43,7 @@ function main(): void {
           ok: false,
           error: "missing command",
           usage:
-            "health | init [--db path] | create <session_id> [--db path] | show <session_id> [--db path] | turn <session_id> [--action ACTION] [--mod N] [--db path] | history <session_id> [--limit N] [--db path] | stats <session_id> [--db path]",
+            "health | init [--db path] | create <session_id> [--db path] | show <session_id> [--db path] | turn <session_id> [--action ACTION] [--mod N] [--db path] | history <session_id> [--limit N] [--db path] | stats <session_id> [--db path] | prompt <session_id> [--db path]",
         },
         null,
         2

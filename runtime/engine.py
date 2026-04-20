@@ -5,7 +5,13 @@ from dataclasses import dataclass
 from typing import Optional
 
 from runtime.db import connect, init_db
-from runtime.content import ACTION_MODIFIERS, CHARACTERS, EVENTS_BY_CHARACTER
+from runtime.content import (
+    ACTION_DISPLAY,
+    ACTION_MODIFIERS,
+    CHARACTER_NAME_MAP,
+    CHARACTERS,
+    EVENTS_BY_CHARACTER,
+)
 
 
 INITIAL_STATE = {
@@ -39,6 +45,7 @@ class TurnResult:
     statuses: list[dict]
     hazards: list[dict]
     projects: list[dict]
+    next_prompt: dict
 
 
 def _json_load(text: str | None, fallback: object) -> object:
@@ -181,6 +188,7 @@ def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection) ->
     if not pool:
         return {
             "event_id": "EVT_GENERIC",
+            "name": "临时任务压迫",
             "base_effect": {"hp": 0, "en": -8, "st": -4, "kpi": 0, "risk": 2, "cor": 0},
         }
     prev = conn.execute(
@@ -192,7 +200,7 @@ def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection) ->
     for event in pool:
         weighted.append((event, 2 if event.event_id == prev_event else 10))
     picked = _weighted_pick(weighted)
-    return {"event_id": picked.event_id, "base_effect": picked.base_effect}
+    return {"event_id": picked.event_id, "name": picked.name, "base_effect": picked.base_effect}
 
 
 # ---------------------------------------------------------------------------
@@ -283,6 +291,63 @@ def _resolve_failure(state: dict) -> str | None:
     if state["kpi"] <= 0:
         return "KPI_DEPLETED"
     return None
+
+
+def _build_options(state: dict) -> list[dict]:
+    option_keys = ["DIRECT_EXECUTE", "EMAIL_TRACE", "NARROW_SCOPE", "SOFT_REFUSE"]
+    if state["en"] < 35:
+        option_keys.append("RECOVERY_BREAK")
+    else:
+        option_keys.append("REQUEST_CONFIRMATION")
+    options = []
+    for idx, key in enumerate(option_keys[:5], start=1):
+        display = ACTION_DISPLAY.get(key, {"title": key, "summary": "执行该策略"})
+        options.append(
+            {
+                "index": idx,
+                "action": key,
+                "title": display["title"],
+                "summary": display["summary"],
+            }
+        )
+    return options
+
+
+def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
+    conn = connect(db_path)
+    try:
+        session = conn.execute("SELECT * FROM game_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not session:
+            raise ValueError(f"session not found: {session_id}")
+        raw = dict(session)
+        simulated_next_turn = int(raw["turn_index"]) + 1
+        next_time_period = _time_period(simulated_next_turn)
+        character_id = _pick_character(raw, conn, next_time_period)
+        event = _pick_event(session_id, character_id, conn)
+        risk_tip = "风险偏高，优先考虑留痕或缩小范围。" if raw["risk"] >= 40 else "保持节奏，避免口头承诺。"
+        return {
+            "turn_index": simulated_next_turn,
+            "day": int(raw.get("day", 1)),
+            "time_period": next_time_period,
+            "status_bar": {
+                "生命": f"{raw['hp']}/100",
+                "精力": f"{raw['en']}/100",
+                "体力": f"{raw['st']}/100",
+                "绩效": raw["kpi"],
+                "风险": raw["risk"],
+                "污染": raw["cor"],
+            },
+            "event_summary": {
+                "actor": CHARACTER_NAME_MAP.get(character_id, "未知角色"),
+                "event": event.get("name") or event.get("event_name") or event["event_id"],
+                "prompt": f"{CHARACTER_NAME_MAP.get(character_id, '某人')} 发来新压力：{event.get('name') or event['event_id']}",
+            },
+            "risk_tip": risk_tip,
+            "options": _build_options(raw),
+            "input_hint": "回复编号或直接说你的应对方式。",
+        }
+    finally:
+        conn.close()
 
 
 def _replenish_project() -> dict:
@@ -482,6 +547,7 @@ def apply_turn(
             statuses=statuses,
             hazards=hazards,
             projects=projects,
+            next_prompt=build_next_prompt(session_id, db_path),
         )
     finally:
         conn.close()

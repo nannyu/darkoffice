@@ -14,8 +14,13 @@ npm run skill:health
 npm run skill:init
 npm run skill:create -- demo
 npm run skill:turn -- demo --action EMAIL_TRACE
-npm run skill:show -- demo
+npm run skill:prompt -- demo
 ```
+
+WorkBuddy/OpenClaw/Qclaw integration rule:
+
+- After each `turn`, render `payload.next_prompt` immediately.
+- Do not ask user to type an extra "继续" to enter next turn.
 
 ## 3) Platform mapping
 
