@@ -669,7 +669,7 @@ def run_turn(state):
 
 ```
 📊 状态栏｜周二 20:40｜第 12 回合
-HP 85/100 | EN 36/100 | ST 48/100 | KPI 92 | RISK 17 | COR 4
+生命 85/100 | 精力 36/100 | 体力 48/100 | 绩效 92 | 风险 17 | 污染 4
 状态：疲惫(2)、被盯上(1)
 隐患：需求未确认[⏳2]
 项目：季度汇报[进度 2/5]
@@ -680,21 +680,22 @@ HP 85/100 | EN 36/100 | ST 48/100 | KPI 92 | RISK 17 | COR 4
 ### 10.5 事件摘要格式
 
 事件摘要回答三个问题：谁在施压、要你做什么、不处理会怎样。控制在 2-5 行。
+事件摘要中禁止出现内部字段 ID（如 `EVT_02`、`CHR_01`）。
 
 ### 10.6 可选行动格式
 
 ```
 你可以：
-1. 💼 立即执行：保住 KPI，但 EN/ST 消耗较高（骰子修正 +2）
-2. 📋 缩小范围：降低本回合压力，但可能留下后续争议（骰子修正 +1）
-3. 📧 邮件留痕：降低后续背锅风险，但会激怒上司（骰子修正 +3）
-4. 🤝 温和拒绝：保住自己，但 KPI 可能受损（骰子修正 +0）
+1. 💼 立即执行：保住绩效，但精力和体力消耗较高
+2. 📋 缩小范围：降低本回合压力，但可能留下后续争议
+3. 📧 邮件留痕：降低后续背锅风险，但会激怒上司
+4. 🤝 温和拒绝：保住自己，但绩效可能受损
 
 回复数字、关键词或直接说你想怎么做。
 ```
 
 - 默认 3-5 个行动
-- 每个行动提示主要收益、主要代价和骰子修正
+- 每个行动只提示主要收益与主要代价，不展示内部修正值
 - 至少保留一个偏保守选项与一个偏激进选项
 
 ### 10.7 用户输入处理优先级
@@ -844,3 +845,501 @@ HP 85/100 | EN 36/100 | ST 48/100 | KPI 92 | RISK 17 | COR 4
 - 单日必须能感到疲惫累积
 - 单阶段必须能看到后果沉淀
 - 任何阶段推进都不应把隐患完全清零
+
+---
+
+## 第 13 章：P0 内容数据包
+
+> 以下是首批可运行的完整卡牌数据，足够跑通一个 5 天职场周（约 30 回合）。
+
+### 13.1 角色卡数据（6 张）
+
+```yaml
+# === CHR_01: PUA 上司 ===
+character_id: CHR_01
+name: 陈总监
+role_type: 直属上司
+faction: 管理层
+tags: [PUA, 高频施压, 情绪操控]
+persona_summary: |
+  你的直属上司。擅长用"成长机会"包装压榨，用"信任"绑架加班。
+  语气永远温和，但每句话都在加码。拒绝他等于"不上进"。
+passive_effect: 玩家使用"温和拒绝"时额外 KPI-3；骰子额外 -2
+common_pressure_types: [任务压榨, 问责, 情绪PUA, 加班施压]
+event_pool: [EVT_01, EVT_02, EVT_03, EVT_04, EVT_13]
+base_weight: 20
+attitude: {hostility: 0, satisfaction: 5, favor: 0}
+speech_style: |
+  "我这是给你机会，换别人我还不给呢。"
+  "你再扛一下，过了这个阶段就好了。"
+  "我对你期望很高，你不要让我失望。"
+
+# === CHR_02: 推活同事 ===
+character_id: CHR_02
+name: 小王
+role_type: 同级同事
+faction: 无
+tags: [推活, 边界模糊, 装无辜]
+persona_summary: |
+  工位就在你隔壁的同事。永远笑嘻嘻，永远"顺便"让你帮忙。
+  帮了他一次就有第二次。不帮就是"不合群"。
+passive_effect: 玩家若选择"立即执行"，30%概率追加次级任务
+common_pressure_types: [推活, 甩锅, 边界模糊]
+event_pool: [EVT_05, EVT_06, EVT_07, EVT_14]
+base_weight: 18
+attitude: {hostility: 0, satisfaction: 3, favor: 2}
+speech_style: |
+  "诶，你顺手帮我处理一下呗，很快的。"
+  "这不就是大家一起嘛，分那么清干嘛。"
+  "我实在忙不过来，就你能帮我了。"
+
+# === CHR_03: 甲方金主 ===
+character_id: CHR_03
+name: 张总
+role_type: 甲方客户
+faction: 外部
+tags: [加急, 变更, 倒计时压力]
+persona_summary: |
+  公司最大客户的负责人。需求永远"很简单"，时间永远"很紧急"。
+  你不敢得罪他，因为他的满意度直接影响你的 KPI。
+passive_effect: 加急类任务自带倒计时压力；骰子额外 -1
+common_pressure_types: [临时加急, 需求变更, 交付压力]
+event_pool: [EVT_08, EVT_09, EVT_10, EVT_15]
+base_weight: 15
+attitude: {hostility: 0, satisfaction: 5, favor: 0}
+speech_style: |
+  "这个需求很简单，应该很快能做完吧？"
+  "我们老板很看重这个，明天能看到初版吗？"
+  "之前不是说好的吗？怎么还没做？"
+
+# === CHR_04: HR 笑面虎 ===
+character_id: CHR_04
+name: 刘姐
+role_type: HR
+faction: 管理层
+tags: [绩效, 制度, 笑面虎]
+persona_summary: |
+  永远微笑的HR。每次找你"聊聊"都不是好事。
+  她手里有你的考勤、绩效和所有评价记录。
+  说话永远"为你好"，但每个字都在建档。
+passive_effect: 玩家 KPI 越低，其事件权重越高（KPI<40 时权重×2）；KPI<40 骰子额外 -3
+common_pressure_types: [绩效沟通, 态度评估, 制度执行]
+event_pool: [EVT_11, EVT_12, EVT_16]
+base_weight: 10
+attitude: {hostility: 0, satisfaction: 5, favor: 0}
+speech_style: |
+  "来，咱们聊聊最近的状态？"
+  "这个不是针对你，是公司统一的流程。"
+  "我也是想帮你，你配合一下。"
+
+# === CHR_05: 财务关键人 ===
+character_id: CHR_05
+name: 赵姐
+role_type: 财务
+faction: 职能部门
+tags: [流程, 合规, 灰色地带]
+persona_summary: |
+  财务部的核心人物。掌握报销、采购和合同签章流程。
+  跟她合作有捷径，但捷径总有代价。
+  她给你方便时笑眯眯，审计来了她第一个甩干净。
+passive_effect: 灰色操作收益更大但审计反噬更重；骰子不受修正
+common_pressure_types: [流程合规, 报销, 倒签]
+event_pool: [EVT_17, EVT_18, EVT_19]
+base_weight: 12
+attitude: {hostility: 0, satisfaction: 3, favor: 1}
+speech_style: |
+  "这个嘛……也不是不行，你看着办。"
+  "流程上有点问题，但先走了再说？"
+  "审计要来了，这些材料你再补一下。"
+
+# === CHR_06: 派系总监 ===
+character_id: CHR_06
+name: 李副总
+role_type: 高管
+faction: A派系
+tags: [政治, 站队, 汇报]
+persona_summary: |
+  公司两大派系之一的核心人物。他跟你的直属上司不是一路人。
+  他对你"关注"意味着你被卷入了更大的漩涡。
+  他的好意从来不是免费的。
+passive_effect: 若玩家有"站队嫌疑"状态，事件强度提升；骰子不受修正
+common_pressure_types: [站队, 汇报, 政治表态]
+event_pool: [EVT_20, EVT_21, EVT_22]
+base_weight: 8
+attitude: {hostility: 0, satisfaction: 0, favor: 0}
+speech_style: |
+  "小伙子，最近干得不错，有空聊聊？"
+  "有些事情，你自己想清楚站哪边。"
+  "我就是随便问问，不用紧张。"
+```
+
+### 13.2 事件卡数据（25 张）
+
+```yaml
+# ===== 工作任务类 =====
+
+- event_id: EVT_01
+  name: "今晚先把新版方案出掉"
+  source_character: CHR_01
+  event_category: 工作任务
+  pressure_level: HIGH
+  tags: [加班, 压榨, 紧急]
+  base_effect: {EN: -15, ST: -10, KPI: +3}
+  flavor_text: |
+    陈总监在下班前十分钟走到你工位旁，用"商量"的语气说：
+    "今天这个方案能先出一版吗？不用太完美，明早我要看。"
+    你看了一眼时间——18:47。
+  possible_followups: [生成"透支"状态, 生成"需求未确认"隐患]
+  dice_dc: 12
+
+- event_id: EVT_02
+  name: "这个阶段大家都不容易"
+  source_character: CHR_01
+  event_category: 情绪压榨
+  pressure_level: MEDIUM
+  tags: [PUA, 道德绑架, 情绪]
+  base_effect: {EN: -8, ST: -3, KPI: +0}
+  flavor_text: |
+    周会上，陈总监对着团队说："这个阶段大家都不容易，
+    但我相信咱们团队扛得住。"然后单独看了你一眼：
+    "上次那个反馈你还没改完吧？今天先把这个收掉。"
+  possible_followups: [生成"领导不满"状态]
+  dice_dc: 10
+
+- event_id: EVT_03
+  name: "我对你期望很高"
+  source_character: CHR_01
+  event_category: 情绪压榨
+  pressure_level: MEDIUM
+  tags: [PUA, 绩效, 期望绑架]
+  base_effect: {EN: -6, ST: -2, KPI: -2}
+  flavor_text: |
+    陈总监把你叫到办公室，关上门：
+    "说实话，我对你的期望比别人高。这次的表现不太行，
+    你自己想想原因。我不是在批评你，我是希望你更好。"
+  possible_followups: [生成"被盯上"状态]
+  dice_dc: 11
+
+- event_id: EVT_04
+  name: "上次那个问题到底是谁负责的"
+  source_character: CHR_01
+  event_category: 甩锅
+  pressure_level: HIGH
+  tags: [问责, 追责, 背锅]
+  base_effect: {EN: -10, KPI: -8, RISK: +5}
+  flavor_text: |
+    上周交付的方案被客户打回来了。陈总监在群里@你：
+    "这个版本的负责人是谁来着？麻烦回溯一下问题出在哪。"
+    你记得清楚——需求变更是口头传达的，你没有留痕。
+  possible_followups: [生成"责任未明确"隐患, 角色敌意+1]
+  dice_dc: 14
+
+# ===== 推活/甩锅类 =====
+
+- event_id: EVT_05
+  name: "你顺手帮我处理一下"
+  source_character: CHR_02
+  event_category: 推活
+  pressure_level: LOW
+  tags: [推活, 边界模糊, 日常]
+  base_effect: {EN: -5, ST: -3, KPI: +1}
+  flavor_text: |
+    小王端着咖啡晃到你工位："诶，这个表格你顺手帮我
+    整理一下呗？就几行数据，很快的。"
+    你已经是这周第三次被"顺手"了。
+  possible_followups: [若立即执行则30%追加次级任务]
+  dice_dc: 8
+
+- event_id: EVT_06
+  name: "这不是大家一起的吗"
+  source_character: CHR_02
+  event_category: 甩锅
+  pressure_level: MEDIUM
+  tags: [甩锅, 责任模糊, 边界]
+  base_effect: {EN: -7, KPI: -3, RISK: +3}
+  flavor_text: |
+    你和小王合作的项目出了问题，主管问起来时小王说：
+    "这个不是我们一起做的吗？我以为那部分你在跟。"
+    你看了看手机——你们当时只有微信语音，没有文字记录。
+  possible_followups: [生成"责任未明确"隐患]
+  dice_dc: 11
+
+- event_id: EVT_07
+  name: "先做了再说"
+  source_character: CHR_02
+  event_category: 推活
+  pressure_level: LOW
+  tags: [推活, 模糊承诺, 边界]
+  base_effect: {EN: -6, ST: -2, RISK: +2}
+  flavor_text: |
+    小王拉你进了一个新群："这个项目你也帮忙看看呗，
+    先做了再说，到时候怎么分工咱们再定。"
+    群里已经有八个人了，但没人说过具体分工。
+  possible_followups: [生成"口头承诺"隐患]
+  dice_dc: 9
+
+# ===== 甲方需求类 =====
+
+- event_id: EVT_08
+  name: "需求先做了再确认"
+  source_character: CHR_03
+  event_category: 甲方需求
+  pressure_level: HIGH
+  tags: [需求变更, 紧急, 甲方]
+  base_effect: {EN: -12, ST: -8, KPI: +2, RISK: +5}
+  flavor_text: |
+    张总打来电话："上次说的那个功能，你先做了，
+    具体需求我让他们后面补。来不及走流程了。"
+    你知道"后面补"的意思是永远不会补。
+  possible_followups: [生成"需求未确认"隐患(倒计时3)]
+  dice_dc: 13
+
+- event_id: EVT_09
+  name: "明天老板要看"
+  source_character: CHR_03
+  event_category: 甲方需求
+  pressure_level: HIGH
+  tags: [加急, 倒计时, 甲方]
+  base_effect: {EN: -15, ST: -12, KPI: +4}
+  flavor_text: |
+    下午四点，张总的助理突然发消息：
+    "张总说明天上午要给他们老板演示，
+    能不能今晚把 demo 准备好？内容你看着来。"
+  possible_followups: [生成"透支"状态, 项目压力+1]
+  dice_dc: 14
+
+- event_id: EVT_10
+  name: "之前不是说好的吗"
+  source_character: CHR_03
+  event_category: 甲方需求
+  pressure_level: MEDIUM
+  tags: [需求变更, 追责, 甲方]
+  base_effect: {EN: -8, KPI: -5, RISK: +4}
+  flavor_text: |
+    张总看完你交付的版本，皱了皱眉：
+    "这跟我之前说的不一样啊？我记得当时说得很清楚了。"
+    你翻了翻记录——当时确实只是电话沟通，没有文字确认。
+  possible_followups: [若无留痕则生成"口头承诺"隐患]
+  dice_dc: 12
+
+# ===== 绩效制度类 =====
+
+- event_id: EVT_11
+  name: "来聊聊最近的状态"
+  source_character: CHR_04
+  event_category: 绩效制度
+  pressure_level: MEDIUM
+  tags: [绩效, HR, 谈话]
+  base_effect: {EN: -6, KPI: -3}
+  flavor_text: |
+    刘姐约你去会议室："别紧张，就聊聊。最近加班多不多？
+    同事关系还好吧？有没有什么想法？"
+    你知道这不是随便聊聊。她在做360评估的前期摸底。
+  possible_followups: [生成"被盯上"状态]
+  dice_dc: 10
+
+- event_id: EVT_12
+  name: "绩效沟通安排一下"
+  source_character: CHR_04
+  event_category: 绩效制度
+  pressure_level: HIGH
+  tags: [绩效, 制度, 压力]
+  base_effect: {EN: -10, KPI: -8, RISK: +3}
+  flavor_text: |
+    刘姐发来日历邀请："绩效面谈，30分钟。"
+    没有议程，没有预告。你看了一眼自己这个月的考勤记录
+    和项目完成度——心里开始盘算哪些能说，哪些不能提。
+  possible_followups: [KPI<40时可能触发"末位警告"]
+  dice_dc: 13
+
+# ===== 恢复机会类 =====
+
+- event_id: EVT_13
+  name: "午休也能简单碰一下？"
+  source_character: CHR_01
+  event_category: 恢复机会
+  pressure_level: LOW
+  tags: [午休, 侵占, 恢复受阻]
+  base_effect: {EN: -3, ST: -2}
+  flavor_text: |
+    午休时间，陈总监在群里发："大家在吧？
+    下午的会提前碰一下，五分钟就好。"
+    你刚把外卖打开。
+  possible_followups: [取消本回合恢复机会]
+  dice_dc: 7
+
+- event_id: EVT_14
+  name: "先别发邮件"
+  source_character: CHR_02
+  event_category: 推活
+  pressure_level: MEDIUM
+  tags: [阻止留痕, 风险]
+  base_effect: {EN: -4, RISK: +5}
+  flavor_text: |
+    你正准备把会议纪要发邮件确认，小王拉住你：
+    "先别发，等领导定了再说。现在发容易引起误会。"
+    你犹豫了——发还是不发？
+  possible_followups: [不发则RISK+5, 发则角色敌意+1]
+  dice_dc: 10
+
+- event_id: EVT_15
+  name: "这个需求很简单"
+  source_character: CHR_03
+  event_category: 甲方需求
+  pressure_level: MEDIUM
+  tags: [需求低估, 甲方, 工时]
+  base_effect: {EN: -10, ST: -6, KPI: +2}
+  flavor_text: |
+    张总在群里发了一张手绘草图："这个功能很简单，
+    就加个按钮就行了。"你仔细看了看——涉及三个系统的联调、
+    两个接口的改造和一次数据迁移。
+  possible_followups: [生成项目卡"甲方需求-紧急"]
+  dice_dc: 12
+
+- event_id: EVT_16
+  name: "你最近态度有点问题"
+  source_character: CHR_04
+  event_category: 绩效制度
+  pressure_level: MEDIUM
+  tags: [态度评价, HR, 软刀子]
+  base_effect: {EN: -8, KPI: -5, COR: +2}
+  flavor_text: |
+    刘姐在走廊上"偶遇"你："跟你说个事——
+    有同事反馈你最近态度不太好，不太配合。
+    我先不记录，你自己注意一下。"
+    你不知道是谁说的，也不知道"态度"指的是什么。
+  possible_followups: [生成"领导不满"状态]
+  dice_dc: 11
+
+# ===== 灰色合规类 =====
+
+- event_id: EVT_17
+  name: "先倒签一下"
+  source_character: CHR_05
+  event_category: 灰色合规
+  pressure_level: HIGH
+  tags: [倒签, 合规, 灰色地带]
+  base_effect: {EN: -5, RISK: +15, COR: +8}
+  flavor_text: |
+    赵姐把你叫到财务室："上个月那个采购单漏签了，
+    你把日期改成上月的，补个签字。不然这笔款走不了。"
+    她看起来很淡定，好像这只是一个很小的事。
+  possible_followups: [生成"倒签文件"隐患(倒计时5)]
+  dice_dc: 14
+
+- event_id: EVT_18
+  name: "报销材料再补一下"
+  source_character: CHR_05
+  event_category: 灰色合规
+  pressure_level: LOW
+  tags: [报销, 流程, 补材料]
+  base_effect: {EN: -4, ST: -2, RISK: +3}
+  flavor_text: |
+    赵姐打来电话："你上个月的差旅报销少了两张发票，
+    金额对不上。你要么找到发票，要么……想想别的办法。"
+    "别的办法"你听懂了。
+  possible_followups: [生成"报销缺材料"隐患(倒计时3)]
+  dice_dc: 9
+
+- event_id: EVT_19
+  name: "审计要来了"
+  source_character: CHR_05
+  event_category: 灰色合规
+  pressure_level: HIGH
+  tags: [审计, 暴雷, 问责]
+  base_effect: {EN: -12, RISK: +10, KPI: -5}
+  flavor_text: |
+    赵姐的语气突然严肃了："下周审计组来，
+    你之前那几个单子都对得上吧？对不上的话……
+    你自己想想办法。我这边的手续是齐的。"
+  possible_followups: [若有"倒签文件"隐患则立即翻面]
+  dice_dc: 15
+
+# ===== 政治站队类 =====
+
+- event_id: EVT_20
+  name: "你支持哪个方案"
+  source_character: CHR_06
+  event_category: 政治站队
+  pressure_level: HIGH
+  tags: [站队, 政治, 表态]
+  base_effect: {EN: -8, RISK: +8, COR: +5}
+  flavor_text: |
+    会上，李副总和你的直属上司陈总监提了两套方案。
+    李副总突然看向你："小X，你觉得哪个方案更合理？"
+    整个会议室安静了。
+  possible_followups: [生成"站队嫌疑"状态, 一方敌意+2]
+  dice_dc: 13
+
+- event_id: EVT_21
+  name: "有空聊聊"
+  source_character: CHR_06
+  event_category: 政治站队
+  pressure_level: MEDIUM
+  tags: [拉拢, 政治, 试探]
+  base_effect: {EN: -5, COR: +3}
+  flavor_text: |
+    李副总在电梯里"偶遇"你："小X，最近干得不错，
+    有空找我坐坐，聊聊职业规划。"
+    你知道这不是普通的聊天邀请。
+  possible_followups: [若接受则COR+3且生成"站队嫌疑"]
+  dice_dc: 10
+
+- event_id: EVT_22
+  name: "你在陈总监那边怎么汇报的"
+  source_character: CHR_06
+  event_category: 政治站队
+  pressure_level: HIGH
+  tags: [政治, 信息战, 站队]
+  base_effect: {EN: -10, RISK: +6, COR: +4}
+  flavor_text: |
+    李副总把你叫到他办公室："听说上次那个项目，
+    你跟陈总监汇报了一个版本，跟我说的不太一样？
+    你跟我说说，到底是怎么回事。"
+  possible_followups: [无论如何回答都会生成一方敌意变化]
+  dice_dc: 14
+
+# ===== 特殊事件 =====
+
+- event_id: EVT_23
+  name: "周报还没交"
+  source_character: SYSTEM
+  event_category: 绩效制度
+  pressure_level: LOW
+  tags: [周报, 日常, 制度]
+  base_effect: {EN: -3, KPI: -2}
+  flavor_text: |
+    系统提醒：本周周报尚未提交。截止时间还剩 2 回合。
+    不交的话，这周的工作量就等于零。
+  possible_followups: [生成"周报未交"隐患(倒计时2)]
+  dice_dc: 6
+
+- event_id: EVT_24
+  name: "未读消息 99+"
+  source_character: SYSTEM
+  event_category: 工作任务
+  pressure_level: LOW
+  tags: [消息, 信息过载, 日常]
+  base_effect: {EN: -4, RISK: +2}
+  flavor_text: |
+    你看了一眼手机——工作群 99+ 未读，
+    其中有三条@你的消息，最早一条是两小时前的。
+    你不确定里面有没有什么重要的事被你漏掉了。
+  possible_followups: [生成"未回消息"隐患(倒计时2)]
+  dice_dc: 7
+
+- event_id: EVT_25
+  name: "茶水间偶遇"
+  source_character: SYSTEM
+  event_category: 恢复机会
+  pressure_level: NONE
+  tags: [恢复, 社交, 正面]
+  base_effect: {EN: +8, ST: +3}
+  flavor_text: |
+    你去茶水间接水，遇到了另一个部门的老同事。
+    她跟你吐槽了自己部门的奇葩事，你们笑了一会儿。
+    虽然什么都没解决，但你感觉好了一点。
+  possible_followups: [无负面后果]
+  dice_dc: 5
+```
+

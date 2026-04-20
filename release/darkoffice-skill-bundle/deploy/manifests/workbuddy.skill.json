@@ -1,0 +1,26 @@
+{
+  "name": "darkoffice-skill",
+  "platform": "workbuddy",
+  "mode": "local-command-skill",
+  "runtime": {
+    "adapter": "skill/adapter.ts",
+    "invoke": "npx tsx skill/adapter.ts <command> ...args"
+  },
+  "commands": {
+    "health": "npx tsx skill/adapter.ts health",
+    "init": "npx tsx skill/adapter.ts init",
+    "create": "npx tsx skill/adapter.ts create <session_id>",
+    "show": "npx tsx skill/adapter.ts show <session_id>",
+    "turn": "npx tsx skill/adapter.ts turn <session_id> --action <ACTION_TYPE>",
+    "history": "npx tsx skill/adapter.ts history <session_id> --limit 10",
+    "stats": "npx tsx skill/adapter.ts stats <session_id>"
+  },
+  "requirements": {
+    "python": ">=3.10",
+    "node": ">=20"
+  },
+  "notes": [
+    "command returns JSON payload",
+    "persisted state is stored in runtime/darkoffice.sqlite3"
+  ]
+}

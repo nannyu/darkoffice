@@ -1,0 +1,25 @@
+{
+  "name": "darkoffice-skill",
+  "platform": "openclaw",
+  "entry": "npm run skill:turn -- <session_id> --action <ACTION_TYPE>",
+  "healthcheck": "npm run skill:health",
+  "session_init": [
+    "npm run skill:init",
+    "npm run skill:create -- <session_id>"
+  ],
+  "session_ops": {
+    "show": "npm run skill:show -- <session_id>",
+    "turn": "npm run skill:turn -- <session_id> --action <ACTION_TYPE>",
+    "history": "npm run skill:history -- <session_id> --limit 10",
+    "stats": "npm run skill:stats -- <session_id>"
+  },
+  "requirements": {
+    "python": ">=3.10",
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "paths": {
+    "db": "runtime/darkoffice.sqlite3",
+    "skill_doc": "skill/darkoffice-persistent-skill.md"
+  }
+}

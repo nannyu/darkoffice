@@ -1,0 +1,24 @@
+{
+  "name": "darkoffice-skill-bundle",
+  "version": "1.0.0",
+  "files": [
+    "skill/adapter.ts",
+    "skill/darkoffice-persistent-skill.md",
+    "runtime/__init__.py",
+    "runtime/content.py",
+    "runtime/db.py",
+    "runtime/engine.py",
+    "scripts/game_state_cli.py",
+    "scripts/simulate_balance.py",
+    "scripts/check_env.sh",
+    "deploy/manifests/openclaw.skill.json",
+    "deploy/manifests/workbuddy.skill.json",
+    "deploy/manifests/qclaw.skill.json",
+    "deploy/templates/DEPLOYMENT.md",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "entrypoint": "npx tsx skill/adapter.ts <command>",
+  "healthcheck": "./scripts/check_env.sh"
+}
