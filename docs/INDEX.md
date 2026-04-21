@@ -2,12 +2,12 @@
 
 本文档是《暗黑职场》项目的内部文档导航中枢。它负责说明该看什么、先看什么、哪个文档对哪个问题负责，但不承担大段规则细节的定义职责。
 
-## 当前文档状态
+## 当前项目状态
 
-- 项目处于文档建设阶段
-- 技术栈尚未定案
-- 开发实现尚未启动
-- 当前优先目标是把玩法、系统、内容和协作边界打磨成熟
+- ~~项目处于文档建设阶段~~ → **已进入实现阶段**：最小运行闭环已跑通
+- ~~技术栈尚未定案~~ → **技术栈已定**：Python (SQLite + 回合引擎) + TypeScript (adapter 桥接)
+- ~~开发实现尚未启动~~ → **runtime 已实现**：`db.py` / `engine.py` / `materials.py` / `storylines.py`
+- 当前优先目标：内容填充（事件卡、角色卡扩写）+ 素材库运营 + 剧情线编排
 
 ## 阅读顺序
 
@@ -95,12 +95,30 @@
 
 当多个文档表述冲突时，以结构化子文档中的最新定义为准；历史总案只用于追溯，不用于覆盖现行规则。
 
+## 代码与文档映射
+
+| 文档域 | 事实源文档 | 对应 runtime 模块 |
+|--------|-----------|------------------|
+| 数值系统 | `systems/stats-and-resources.md` | `engine.py` (`_clamp_state`, `_status_modifier`) |
+| 回合流程 | `systems/turn-flow.md` | `engine.py` (`apply_turn`, `build_next_prompt`) |
+| 卡牌系统 | `systems/card-system.md` | `content.py` (`Character`, `Event`) |
+| 事件生成 | `systems/event-generation.md` | `engine.py` (`_pick_character`, `_pick_event`) |
+| 角色系统 | `systems/character-system.md` | `content.py` (`Character`) + `materials.py` (自定义角色) |
+| 状态/隐患/项目 | `systems/status-hazard-project.md` | `engine.py` (`_derive_statuses`, `_tick_hazards`, `_tick_projects`) |
+| 判定规则 | `systems/rules-and-resolution.md` | `engine.py` (`_tier_by_roll`) |
+| 对话交互 | `systems/conversation-interaction.md` | `engine.py` (`build_next_prompt`) |
+| 素材库 | `darkoffice-skill.md` 第14章 | `materials.py` |
+| 剧情线 | `darkoffice-skill.md` 第15章 | `storylines.py` |
+| 剧情库选择 | `darkoffice-skill.md` §15.7 | Agent 层（自然语言匹配） |
+| 持久化 | `CLAUDE.md` | `db.py` |
+
 ## 文档迁移原则
 
 - 先建立主题文档，再迁移历史内容
 - 迁移时优先去重，不做机械复制
 - 新共识只写入目标子文档，不再回填到历史总案中
 - 历史文档一旦被正式拆分，应在 `archive/` 中补充映射关系
+- **代码实现与文档冲突时，以文档事实源为准，同步更新代码**
 
 ## 后续可扩展文档
 

@@ -29,6 +29,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             status_json TEXT NOT NULL DEFAULT '[]',
             hazard_json TEXT NOT NULL DEFAULT '[]',
             project_json TEXT NOT NULL DEFAULT '[]',
+            storyline_id TEXT,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
@@ -50,9 +51,46 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(session_id) REFERENCES game_sessions(session_id)
         );
+
+        CREATE TABLE IF NOT EXISTS materials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            source TEXT NOT NULL DEFAULT '',
+            category TEXT NOT NULL DEFAULT '',
+            content TEXT NOT NULL DEFAULT '',
+            file_type TEXT NOT NULL DEFAULT 'MANUAL',
+            original_filename TEXT,
+            tags_json TEXT NOT NULL DEFAULT '[]',
+            metadata_json TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS custom_cards (
+            card_id TEXT PRIMARY KEY,
+            card_type TEXT NOT NULL,
+            card_name TEXT NOT NULL,
+            card_data_json TEXT NOT NULL DEFAULT '{}',
+            source_material_id INTEGER,
+            is_active INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(source_material_id) REFERENCES materials(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS storylines (
+            storyline_id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
+            acts_json TEXT NOT NULL DEFAULT '[]',
+            is_active INTEGER NOT NULL DEFAULT 0,
+            current_act_index INTEGER NOT NULL DEFAULT 0,
+            session_id TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(session_id) REFERENCES game_sessions(session_id)
+        );
         """
     )
     _migrate_turn_logs(conn)
+    _migrate_game_sessions(conn)
     conn.commit()
 
 
@@ -73,3 +111,9 @@ def _migrate_turn_logs(conn: sqlite3.Connection) -> None:
     for name, sql_type in additions:
         if not _column_exists(conn, "turn_logs", name):
             conn.execute(f"ALTER TABLE turn_logs ADD COLUMN {name} {sql_type}")
+
+
+def _migrate_game_sessions(conn: sqlite3.Connection) -> None:
+    """向后兼容：为旧 game_sessions 表补齐 storyline_id 字段。"""
+    if not _column_exists(conn, "game_sessions", "storyline_id"):
+        conn.execute("ALTER TABLE game_sessions ADD COLUMN storyline_id TEXT")

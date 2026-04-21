@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -8,6 +9,12 @@ class Character:
     character_id: str
     name: str
     base_weight: int
+    # 扩展可选字段（自定义卡牌使用，内置卡牌保持默认值）
+    role_type: Optional[str] = None
+    faction: Optional[str] = None
+    tags: Optional[list[str]] = None
+    passive_effect: Optional[str] = None
+    speech_style: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -16,6 +23,13 @@ class Event:
     character_id: str
     name: str
     base_effect: dict[str, int]
+    # 扩展可选字段（自定义卡牌使用，内置卡牌保持默认值）
+    event_category: Optional[str] = None
+    pressure_level: Optional[str] = None
+    tags: Optional[list[str]] = None
+    flavor_text: Optional[str] = None
+    possible_followups: Optional[list[str]] = None
+    dice_dc: Optional[int] = None
 
 
 CHARACTERS: list[Character] = [

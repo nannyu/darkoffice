@@ -116,9 +116,20 @@
 
 ## 失败判定
 
-- `HP <= 0`：崩溃结局
-- `KPI <= 0`：被开除结局
-- 若未触发失败则继续回合
+每回合结算后检查以下条件，触发即终止游戏：
+
+| 条件 | 失败类型 | 结局名称 | 说明 |
+|------|---------|---------|------|
+| `HP <= 0` | `HP_DEPLETED` | 💀 崩溃结局 | 身心彻底崩溃 |
+| `EN <= 0` | `EN_DEPLETED` | 🧠 精神崩溃结局 | 精力耗尽，无法面对任何事 |
+| `ST <= 0` | `ST_DEPLETED` | 🏚️ 体力耗尽结局 | 身体垮掉，被强制停工 |
+| `KPI <= 0` | `KPI_DEPLETED` | 🚪 被开除结局 | 组织不再容忍 |
+| `RISK >= 100` | `RISK_OVERFLOW` | 💣 暴雷结局 | 隐患集中爆发，彻底暴露 |
+| `COR >= 100` | `COR_OVERFLOW` | 🖤 黑化结局 | 道德底线彻底瓦解 |
+
+优先级：HP > EN > ST > KPI > RISK > COR（同时触发多项时取最高优先级）
+
+若未触发任何失败条件，继续下一回合。
 
 ## 时间段系统
 
@@ -133,11 +144,154 @@
 
 ## 持久化约束
 
-- `game_sessions` 保存当前快照（含 day、hazard_json、project_json）
+- `game_sessions` 保存当前快照（含 day、hazard_json、project_json、storyline_id）
 - `turn_logs` 保存逐回合明细
+- `materials` 保存素材库数据
+- `custom_cards` 保存蒸馏生成的自定义卡牌
+- `storylines` 保存定制剧情线定义
 - 任何异常中断后，允许通过 `show` 恢复到最新状态继续
 - `hazard_json` 必须维护倒计时隐患
 - `project_json` 必须维护持续项目压力与进度
+
+## 素材库操作
+
+### 导入素材
+
+从文件导入素材（支持 md/txt/pdf）：
+
+```bash
+python3 scripts/game_state_cli.py material-import --file path/to/case.md --source "警钟" --category 贪腐 --tags "贪腐,采购"
+```
+
+手动录入素材：
+
+```bash
+python3 scripts/game_state_cli.py material-add --title "某局采购腐败案" --source "警钟" --category 贪腐 --content "案件正文..."
+```
+
+### 查看素材
+
+```bash
+python3 scripts/game_state_cli.py material-list [--category 贪腐] [--source 警钟]
+python3 scripts/game_state_cli.py material-show <material_id>
+python3 scripts/game_state_cli.py material-search <keyword>
+```
+
+## 卡牌蒸馏器操作
+
+蒸馏是一个 AI 驱动的流程。操作步骤：
+
+1. 从素材库选取素材：`material-show <id>` 获取素材内容
+2. 根据蒸馏类型选择提示词模板（参见 scripts/distill_template.py）
+3. 将素材内容填入模板，由 AI 生成结构化卡牌 JSON
+4. 校验并写入：
+   ```bash
+   python3 scripts/distill_template.py --type CHARACTER --data '{"name":"...","base_weight":10,...}'
+   ```
+5. 激活卡牌使其生效：
+   ```bash
+   python3 scripts/game_state_cli.py card-activate <card_id>
+   ```
+
+### 自定义卡牌 ID 规范
+
+- 角色卡：`CUSTOM_CHR_XX`
+- 事件卡：`CUSTOM_EVT_XX`
+- 隐患卡：`CUSTOM_HZD_XX`
+
+### 卡牌管理
+
+```bash
+python3 scripts/game_state_cli.py card-list [--card-type CHARACTER] [--active-only]
+python3 scripts/game_state_cli.py card-show <card_id>
+python3 scripts/game_state_cli.py card-activate <card_id>
+python3 scripts/game_state_cli.py card-deactivate <card_id>
+python3 scripts/game_state_cli.py card-delete <card_id>
+```
+
+## 剧情线操作
+
+### 创建剧情线
+
+```bash
+python3 scripts/game_state_cli.py storyline-create \
+  --storyline-id SL_01 \
+  --title "采购黑洞" \
+  --description "从一份采购单开始，逐步卷入灰色利益链" \
+  --acts '[{"act_index":0,"title":"第一幕：入局","character_id":"CHR_05","event_ids":["EVT_17"],"narrative_bridge":"你被拉进了一个看似普通的采购流程...","completion_condition":"turn_resolved"}]'
+```
+
+### 激活剧情线
+
+```bash
+python3 scripts/game_state_cli.py storyline-activate <session_id> <storyline_id>
+```
+
+激活后，引擎将按剧情线推进，优先使用剧情线指定的角色和事件。
+
+### 查看和管理
+
+```bash
+python3 scripts/game_state_cli.py storyline-list
+python3 scripts/game_state_cli.py storyline-show <storyline_id>
+python3 scripts/game_state_cli.py storyline-status <session_id>
+python3 scripts/game_state_cli.py storyline-progress <session_id>
+python3 scripts/game_state_cli.py storyline-deactivate <session_id>
+python3 scripts/game_state_cli.py storyline-delete <storyline_id>
+```
+
+## 剧情库与游戏开始流程
+
+### 新游戏启动流程
+
+当玩家说"开始游戏""新游戏"或类似表述时，按以下顺序执行：
+
+1. **初始化会话**：
+   ```bash
+   python3 scripts/game_state_cli.py init
+   python3 scripts/game_state_cli.py create <session_id>
+   ```
+
+2. **查询剧情库**：
+   ```bash
+   python3 scripts/game_state_cli.py storyline-list
+   ```
+
+3. **展示选择**（仅当剧情库非空时）：
+
+   以自然语言展示剧情选项，格式：
+   ```
+   🎭 选择你的剧情线：
+
+   1. 「围猎：董事长的坠落」— 从红包破冰到项目黑洞，一路深陷围猎漩涡
+   2. 「采购黑洞」— 一份倒签的采购单，卷入灰色利益链
+   3. 自由模式 — 没有预设剧情，随机面对职场的一切
+
+   回复编号或直接描述你想体验的剧情。
+   ```
+
+4. **解析用户选择**：
+   - **编号**：输入"1""2"等直接映射
+   - **关键词**：输入"围猎""采购"等匹配标题
+   - **自然语言**：输入"我想体验权力腐蚀的剧情"等，Agent 语义匹配
+   - **自由模式**：输入"自由""随机""不要剧情"等，跳过剧情线
+
+5. **激活选择的剧情线**（若非自由模式）：
+   ```bash
+   python3 scripts/game_state_cli.py storyline-activate <session_id> <storyline_id>
+   ```
+
+6. **开始第一回合**：按正常回合流程开始
+
+### 无剧情线时
+
+若 `storyline-list` 返回空，直接以自由模式开始，不展示空列表。
+
+### 剧情选择展示要求
+
+- 每条剧情：编号 + 标题 + 一句话摘要（≤30字，取自 description）
+- 最后一个选项始终为"自由模式"
+- 提示语："回复编号或直接描述你想体验的剧情"
 
 ## 给操作者的建议
 

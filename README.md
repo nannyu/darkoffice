@@ -99,7 +99,7 @@
 ## 仓库结构
 
 ```
-docs/
+docs/                     # 正式文档事实源
 ├── INDEX.md              # 地图
 ├── project/              # 项目定位、术语、设计支柱
 ├── design/               # 核心循环、进程推进、结局方向
@@ -107,6 +107,26 @@ docs/
 ├── content/              # 角色池、事件库、应对库
 ├── collaboration/        # 开发规范、交接文档
 └── archive/              # 历史的尘埃
+
+runtime/                  # 规则执行与数据存取
+├── db.py                 # SQLite 持久化（5张表 + 迁移）
+├── engine.py             # 回合结算引擎（状态机、判定、隐患、项目）
+├── content.py            # Character/Event dataclass
+├── materials.py          # 素材库 + 自定义卡牌管理
+└── storylines.py         # 剧情线 CRUD + 激活/推进
+
+scripts/                  # 初始化、调试、运维脚本
+├── game_state_cli.py     # CLI 入口（init/create/turn/show/material/card/storyline）
+├── distill_template.py   # 卡牌蒸馏模板 + Schema 校验
+├── simulate_balance.py   # 平衡性模拟
+├── crawl_jingzhong.py    # 警钟栏目爬取
+└── fetch_and_import_jingzhong.py  # 详情抓取 + 素材库导入
+
+skill/                    # 可交付 Agent Skill
+├── darkoffice-persistent-skill.md  # 持久化版 Skill（含完整规则 + DB 约束）
+└── adapter.ts            # Node.js → Python 桥接
+
+data/                     # 运行时数据（SQLite + 素材文件）
 ```
 
 ---
@@ -115,13 +135,14 @@ docs/
 
 能。
 
-但说实话，**现在更像是个"职场模拟器原型"，而不是完整的游戏**。
+**现在是个可运行的"职场模拟器原型"**，支持持久化存档、素材库、卡牌蒸馏和剧情线。
 
 你可以：
-- 创建角色
-- 抽事件卡
-- 做选择
-- 看数值变化
+- 创建角色，存档自动落盘 SQLite
+- 抽事件卡，回合结算含 d20 判定
+- 做选择，看数值变化（HP/EN/ST/KPI/RISK/COR）
+- 导入素材（新闻案例、历史事件等），AI 蒸馏成角色卡/事件卡
+- 编排剧情线，让游戏按你的剧本推进
 - 体验"我怎么又死了"的挫败感
 
 你不能：
@@ -147,6 +168,14 @@ python3 scripts/game_state_cli.py turn demo --action EMAIL_TRACE --mod 3
 
 # 4. 查看他还活着吗
 python3 scripts/game_state_cli.py show demo
+
+# 5. 素材库操作
+python3 scripts/game_state_cli.py material-list
+python3 scripts/game_state_cli.py material-search --keyword 腐败
+
+# 6. 剧情线操作
+python3 scripts/game_state_cli.py storyline-list
+python3 scripts/game_state_cli.py storyline-activate demo --storyline-id demo_arc
 ```
 
 ### Node.js 适配版（给 WorkBuddy/OpenClaw 用的）
@@ -163,13 +192,18 @@ npm run skill:show -- demo
 
 ## 下一步干嘛
 
-继续填内容。
+### 内容规模化
 
-游戏机制是骨架，**事件卡才是血肉**。现在有几张卡，但不够。我们需要更多：
+游戏机制是骨架，**事件卡才是血肉**。现在有几张卡，但不够。我们已建立素材库和卡牌蒸馏器，可以：
 
-- 更多"这也能行？"的事件
-- 更多"两害相权取其轻"的选择
-- 更多"当时觉得没事后来爆炸"的隐患
+1. **导入素材**：把新闻案例、历史事件、个人经历录入素材库
+2. **AI 蒸馏**：运行 `scripts/distill_template.py`，从素材生成角色卡/事件卡/隐患卡
+3. **激活卡牌**：自定义卡牌激活后自动合并入默认池
+4. **编排剧情**：用 `storylines.py` 设计多幕剧情线
+
+### 已有素材
+
+- 中央纪委"警钟"栏目：19 条反腐案例已导入素材库
 
 如果你也有**被职场毒打的经历**，欢迎贡献。你的痛苦，可以成为别人的游戏素材。
 

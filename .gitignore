@@ -2,3 +2,10 @@
 __pycache__/
 *.sqlite3
 node_modules/
+presentation-lidan.html
+slides.json
+
+# WorkBuddy workspace data (not project artifacts)
+.workbuddy/expert-history.json
+.workbuddy/plans/
+.workbuddy/settings.local.json

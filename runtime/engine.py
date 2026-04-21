@@ -12,6 +12,14 @@ from runtime.content import (
     CHARACTERS,
     EVENTS_BY_CHARACTER,
 )
+from runtime.materials import (
+    load_active_custom_characters,
+    load_active_custom_events,
+    load_active_custom_hazards,
+    merge_characters,
+    merge_events,
+)
+from runtime.storylines import get_active_storyline, advance_act
 
 
 INITIAL_STATE = {
@@ -46,6 +54,7 @@ class TurnResult:
     hazards: list[dict]
     projects: list[dict]
     next_prompt: dict
+    storyline_context: dict | None = None
 
 
 def _json_load(text: str | None, fallback: object) -> object:
@@ -74,8 +83,8 @@ def _clamp_state(state: dict) -> dict:
     state["en"] = max(0, min(100, state["en"]))
     state["st"] = max(0, min(100, state["st"]))
     state["kpi"] = max(0, min(100, state["kpi"]))
-    state["risk"] = max(0, state["risk"])
-    state["cor"] = max(0, state["cor"])
+    state["risk"] = max(0, min(100, state["risk"]))
+    state["cor"] = max(0, min(100, state["cor"]))
     return state
 
 
@@ -157,11 +166,28 @@ def _weighted_pick(options: list[tuple[object, int]]) -> object:
     return random.choices(pool, weights=weights, k=1)[0]
 
 
-def _pick_character(session: dict, conn: sqlite3.Connection, time_period: str) -> str:
-    """抽取本回合来访角色，接收已打开的连接。"""
+def _pick_character(session: dict, conn: sqlite3.Connection, time_period: str, db_path: str | None = None) -> str:
+    """抽取本回合来访角色。
+
+    优先级：
+    1. 若有激活的剧情线，返回剧情线当前幕指定角色
+    2. 否则合并内置角色 + 自定义角色后加权抽取
+    """
+    # 剧情线优先
+    storyline = get_active_storyline(session["session_id"], db_path)
+    if storyline and storyline.get("current_act"):
+        char_id = storyline["current_act"].get("character_id")
+        if char_id:
+            return char_id
+
+    # 合并内置 + 自定义角色
+    built_in = CHARACTERS
+    custom = load_active_custom_characters(db_path)
+    all_characters = merge_characters(built_in, custom)
+
     weighted = []
     period_mods = _time_period_weight_modifier(time_period)
-    for c in CHARACTERS:
+    for c in all_characters:
         w = c.base_weight
         w = int(w * period_mods.get(c.character_id, 1.0))
         if c.character_id == "CHR_04" and session["kpi"] < 40:
@@ -170,6 +196,7 @@ def _pick_character(session: dict, conn: sqlite3.Connection, time_period: str) -
             w = int(w * 1.6)
         if c.character_id == "CHR_06" and session["cor"] >= 50:
             w = int(w * 1.6)
+        # 自定义角色使用默认权重，不再做特殊修正
         weighted.append((c.character_id, w))
 
     prev = conn.execute(
@@ -182,9 +209,39 @@ def _pick_character(session: dict, conn: sqlite3.Connection, time_period: str) -
     return _weighted_pick(weighted)
 
 
-def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection) -> dict:
-    """抽取本回合事件，接收已打开的连接。"""
-    pool = EVENTS_BY_CHARACTER.get(character_id, [])
+def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection, db_path: str | None = None) -> dict:
+    """抽取本回合事件。
+
+    优先级：
+    1. 若有激活的剧情线且当前幕指定了 event_ids，从中抽取
+    2. 否则合并内置事件 + 自定义事件后抽取
+    """
+    # 剧情线优先
+    storyline = get_active_storyline(session_id, db_path)
+    if storyline and storyline.get("current_act"):
+        event_ids = storyline["current_act"].get("event_ids", [])
+        if event_ids:
+            picked_id = random.choice(event_ids)
+            # 尝试从合并后的事件池查找
+            built_in_events = EVENTS_BY_CHARACTER
+            custom_events = load_active_custom_events(db_path)
+            all_events = merge_events(built_in_events, custom_events)
+            for event in all_events.get(character_id, []):
+                if event.event_id == picked_id:
+                    return {"event_id": event.event_id, "name": event.name, "base_effect": event.base_effect}
+            # 若在事件池中找不到（可能是其他角色的事件），返回通用事件
+            return {
+                "event_id": picked_id,
+                "name": "剧情事件",
+                "base_effect": {"hp": 0, "en": -10, "st": -5, "kpi": 0, "risk": 3, "cor": 0},
+            }
+
+    # 合并内置 + 自定义事件
+    built_in_events = EVENTS_BY_CHARACTER
+    custom_events = load_active_custom_events(db_path)
+    all_events = merge_events(built_in_events, custom_events)
+
+    pool = all_events.get(character_id, [])
     if not pool:
         return {
             "event_id": "EVT_GENERIC",
@@ -228,10 +285,14 @@ _ACTION_HAZARD_MAP: dict[str, dict] = {
 }
 
 
-def _new_hazard(event_id: str, action_type: str) -> dict | None:
-    """根据事件和行动类型生成隐患卡。"""
+def _new_hazard(event_id: str, action_type: str, db_path: str | None = None) -> dict | None:
+    """根据事件和行动类型生成隐患卡。合并内置映射与自定义映射。"""
+    # 合并自定义隐患
+    custom_hazard_map = load_active_custom_hazards(db_path)
+    combined_map = {**_EVENT_HAZARD_MAP, **custom_hazard_map}
+
     # 优先检查事件映射
-    hazard = _EVENT_HAZARD_MAP.get(event_id)
+    hazard = combined_map.get(event_id)
     if hazard:
         return dict(hazard)
     # 其次检查行动映射
@@ -286,10 +347,24 @@ def _merge_delta(*parts: dict) -> dict:
 
 
 def _resolve_failure(state: dict) -> str | None:
+    """检查是否触发失败结局。
+
+    HP/EN/ST/KPI 归零 → 对应失败结局
+    RISK/COR 满100 → 对应失败结局
+    优先级：HP > EN > ST > KPI > RISK > COR（同时触发多项时取最高优先级）
+    """
     if state["hp"] <= 0:
-        return "HP_DEPLETED"
+        return "HP_DEPLETED"       # 崩溃结局
+    if state["en"] <= 0:
+        return "EN_DEPLETED"       # 精神崩溃结局
+    if state["st"] <= 0:
+        return "ST_DEPLETED"       # 体力耗尽结局
     if state["kpi"] <= 0:
-        return "KPI_DEPLETED"
+        return "KPI_DEPLETED"      # 被开除结局
+    if state["risk"] >= 100:
+        return "RISK_OVERFLOW"     # 暴雷结局
+    if state["cor"] >= 100:
+        return "COR_OVERFLOW"      # 黑化结局
     return None
 
 
@@ -322,8 +397,8 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
         raw = dict(session)
         simulated_next_turn = int(raw["turn_index"]) + 1
         next_time_period = _time_period(simulated_next_turn)
-        character_id = _pick_character(raw, conn, next_time_period)
-        event = _pick_event(session_id, character_id, conn)
+        character_id = _pick_character(raw, conn, next_time_period, db_path)
+        event = _pick_event(session_id, character_id, conn, db_path)
         risk_tip = "风险偏高，优先考虑留痕或缩小范围。" if raw["risk"] >= 40 else "保持节奏，避免口头承诺。"
         return {
             "turn_index": simulated_next_turn,
@@ -419,8 +494,8 @@ def apply_turn(
         time_period = _time_period(new_turn)
 
         # ---- 事件生成 ----
-        character_id = _pick_character(raw_session, conn, time_period)
-        event = _pick_event(session_id, character_id, conn)
+        character_id = _pick_character(raw_session, conn, time_period, db_path)
+        event = _pick_event(session_id, character_id, conn, db_path)
         auto_action_mod = ACTION_MODIFIERS.get(action_type.upper(), 0)
         resolved_action_mod = auto_action_mod if action_mod is None else action_mod
         status_mod = _status_modifier(raw_session)
@@ -462,7 +537,7 @@ def apply_turn(
         # ---- 系统结算 ----
         hazards, hazard_tick_delta = _tick_hazards(hazards)
         projects, project_tick_delta = _tick_projects(projects, action_type)
-        new_hazard = _new_hazard(event["event_id"], action_type)
+        new_hazard = _new_hazard(event["event_id"], action_type, db_path)
         if new_hazard and not any(h.get("id") == new_hazard["id"] for h in hazards):
             hazards.append(new_hazard)
 
@@ -471,6 +546,17 @@ def apply_turn(
         # 项目自动补充：当所有项目完成后，自动分配新项目
         if not projects:
             projects = [_replenish_project()]
+
+        # ---- 剧情线推进 ----
+        # 当幕事件已结算，检查是否需要推进到下一幕
+        storyline_context = None
+        if raw_session.get("storyline_id"):
+            next_act = advance_act(session_id, db_path)
+            if next_act:
+                storyline_context = {
+                    "storyline_id": raw_session["storyline_id"],
+                    "next_act": next_act,
+                }
 
         new_state = {
             "hp": raw_session["hp"] + delta["hp"],
@@ -548,6 +634,7 @@ def apply_turn(
             hazards=hazards,
             projects=projects,
             next_prompt=build_next_prompt(session_id, db_path),
+            storyline_context=storyline_context,
         )
     finally:
         conn.close()

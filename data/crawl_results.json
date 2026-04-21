@@ -1,0 +1,602 @@
+[
+  {
+    "title": "警钟 | 靠企吃企 难抵诱惑终自毁",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202405/t20240522_349569.html"
+  },
+  {
+    "title": "警钟 | 算错人生账 醒悟悔已迟",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202404/t20240410_340107.html"
+  },
+  {
+    "title": "警钟 | 不遏贪欲祸身 不受监督自毁",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202403/t20240327_337208.html"
+  },
+  {
+    "title": "警钟丨私利羁绊迷失方向 家风不正越陷越深",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202403/t20240313_334014.html"
+  },
+  {
+    "title": "警钟丨习惯性伸手，在犯罪的道路上越走越远",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2024/01/23/VIDEfoHY2JDDnV4XcMiRv6GV240123.shtml"
+  },
+  {
+    "title": "警钟丨贪欲不可纵 伸手必被捉",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202402/t20240228_330742.html"
+  },
+  {
+    "title": "警钟丨甘被围猎 晚节不保",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/12/07/VIDE23js4k6yMchQvuUIC7a5231207.shtml"
+  },
+  {
+    "title": "警钟丨顺风顺水时最容易放松自我约束",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2024/01/23/VIDEmWT15HxtFzx0cBAwfaZH240123.shtml"
+  },
+  {
+    "title": "警钟丨贪财取危 追悔莫及",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/yaowenn/202401/t20240124_324154.html"
+  },
+  {
+    "title": "警钟 | 心莫贪 贪念一起坠深渊",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202401/t20240102_318888.html"
+  },
+  {
+    "title": "警钟 | 擅权贪利 跌落深渊",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202311/t20231129_310729.html"
+  },
+  {
+    "title": "警钟 | 家风失守 坠入迷途",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/11/03/VIDEo8cjHLoOZT5Voyy4YxkW231103.shtml"
+  },
+  {
+    "title": "警钟丨搭圈子勾兑利益 纵贪欲身陷囹圄",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202311/t20231122_309086.html"
+  },
+  {
+    "title": "警钟丨思想防线失守 逐步滑向深渊",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/11/17/VIDEZbWnpgCuA0cJ0CYbzRY6231117.shtml"
+  },
+  {
+    "title": "警钟丨规划专家破规矩 心为物役陷囹圄",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/yaowenn/202311/t20231108_305973.html"
+  },
+  {
+    "title": "警钟丨防线松动 跌入陷阱",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202311/t20231115_307496.html"
+  },
+  {
+    "title": "警钟 | 对抗组织终是徒劳",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202311/t20231101_304214.html"
+  },
+  {
+    "title": "警钟丨由风及腐，最终难逃纪法严惩",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/10/26/VIDErBTZvUjlh1qVDnTZGJpZ231026.shtml"
+  },
+  {
+    "title": "警钟丨心生攀比入歧途 不知收敛坠深渊",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202310/t20231025_302675.html"
+  },
+  {
+    "title": "警钟 | 玩物丧志 由风及腐",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202310/t20231011_299159.html"
+  },
+  {
+    "title": "警钟 | 一定不能有突破底线的第一次",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/07/06/VIDE9cpZH5MkoC3Ke8rNQu9Z230706.shtml"
+  },
+  {
+    "title": "不知不觉中成了不法商人的\"马前卒\"",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/07/18/VIDEbGDu9uD5II6NfYOLEKoD230718.shtml"
+  },
+  {
+    "title": "警钟 | 手中的权力岂能做交易",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/07/10/VIDEeAHzGo1sEC3bScdygy7E230710.shtml"
+  },
+  {
+    "title": "警钟 | 红包礼金越收越多 腐败泥潭越陷越深",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/07/07/VIDEZoNx3xEOBzFq53LoVSeQ230707.shtml"
+  },
+  {
+    "title": "警钟 | 但愿我的经历能让外逃的人迷途知返",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/06/25/VIDEDZgOph5ukuJdaW1Z9xU0230625.shtml"
+  },
+  {
+    "title": "警钟 | 甘被围猎 苦果自尝",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202307/t20230711_274653.html"
+  },
+  {
+    "title": "警钟丨贪财羡富失底线",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/06/20/VIDECIKEi49S3Yjikd3ey2ZN230620.shtml"
+  },
+  {
+    "title": "警钟丨我错把牌友酒友当\"朋友\" 被腐蚀还乐此不疲",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/06/20/VIDEsuUm4v8poOpzcI61sfYj230620.shtml"
+  },
+  {
+    "title": "警钟丨底线红线不能碰，碰了就万劫不复",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/06/16/VIDEsKb3GcP0EJU9TyREAoOH230616.shtml"
+  },
+  {
+    "title": "警钟丨既想当官又想发财,终落两空",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/05/26/VIDE27XpQeRuMZxdbJxAJ30v230526.shtml"
+  },
+  {
+    "title": "警钟 | 一步错、步步错，最后满盘皆输",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/05/22/VIDExTYS6BhndqTwr7ISJUVg230522.shtml"
+  },
+  {
+    "title": "警钟丨操弄执法权“放贷”谋利的执行局长",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/04/18/VIDE9x3E7ndx23zwENs4Kyus230418.shtml"
+  },
+  {
+    "title": "警钟60秒 | 又怕又收不了手,始终心存侥幸",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/02/03/VIDE1vy23Lzll5DuTeTjabTW230203.shtml"
+  },
+  {
+    "title": "警钟60秒丨第一天过退休生活,结果被留置了",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/02/24/VIDExAlLkT9qc1QzxQvOBjxt230224.shtml"
+  },
+  {
+    "title": "为违法酒吧站台,公安局长沦为黑恶势力“保护伞”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/01/31/VIDEVYcYergt3eAz5cQe7NPj230131.shtml"
+  },
+  {
+    "title": "认干亲、当陪练、做厨师……对围猎“乐在其中”的市委书记",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2023/01/29/VIDElyDQrt3pBWZ1LNVOg3x7230129.shtml"
+  },
+  {
+    "title": "警钟60秒 | \"很羡慕你们还有继续给党工作的机会\"",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/12/16/VIDEFC5Se4NStmVpRdnbtupw221216.shtml"
+  },
+  {
+    "title": "警钟60秒 丨“干了违纪违法的事,你将悔恨终生”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/08/16/VIDEuqenCMipoGQmhuexod3v220816.shtml"
+  },
+  {
+    "title": "案鉴 | “我奋斗了三十多年,但现在却一无所有了”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/08/04/VIDEWSriq6yYa8i9mTzlt5e5220804.shtml"
+  },
+  {
+    "title": "警钟60秒 | 侥幸心理不可有，后悔药世上没有卖",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/07/21/VIDE3uyanJthcCTLPdrwnB3B220721.shtml"
+  },
+  {
+    "title": "案鉴 | “你将用你的一生来弥补你的过错”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/06/29/VIDE1OHiyZbBojvljTE6crAI220629.shtml"
+  },
+  {
+    "title": "警钟60秒丨我活成了一个自己曾经痛恨的那种人",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/06/17/VIDE2fpQxULuedmqxKl3jAyx220617.shtml"
+  },
+  {
+    "title": "警钟60秒 | “财迷心窍，最终把我领到了监狱门口”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/06/15/VIDE2VMr3i9T25JS0jkkq1oo220615.shtml"
+  },
+  {
+    "title": "警钟 | 贪腐的人生“精算师”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/06/06/VIDEAHFJQLxk86vxSjmEG2Oo220606.shtml"
+  },
+  {
+    "title": "警钟60秒 | “后悔没有真正把思想用到正道上来”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/05/17/VIDE4IAygWMKhyIEvSW9fTZL220517.shtml"
+  },
+  {
+    "title": "警钟 | 爱打招呼无口不开 频踩红线跌落深渊",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202206/t20220601_196387.html"
+  },
+  {
+    "title": "案鉴 | “不是说天知地知你知我知的事,终究哪天会东窗事发”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/05/10/VIDEDggeXe6DYz8vZrLNMeNS220510.shtml"
+  },
+  {
+    "title": "警钟60秒 | 一把手当久了,规矩细节都不注重了",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/05/07/VIDEgwFKCXbDUGD4NMxkDSn2220507.shtml"
+  },
+  {
+    "title": "警钟长鸣 | 欲随权涨 迷失心智",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/04/29/VIDEj6jIhp4096HdaXq9QiIs220429.shtml"
+  },
+  {
+    "title": "警钟60秒 | 自由的人生才是最幸福的,可惜醒得太晚了",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/04/18/VIDEoHk8TLpjbSXXO3raxxUc220418.shtml"
+  },
+  {
+    "title": "警钟60秒丨用成绩掩盖违纪违法行为，简直是掩耳盗铃",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/04/14/VIDE0mX1FSpCXrfLfYa3RIF6220414.shtml"
+  },
+  {
+    "title": "警钟60秒｜思想滑坡就像洪水决堤一发不可收拾",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/04/08/VIDEfXhiZde0pHJ5rVjZZrRf220408.shtml"
+  },
+  {
+    "title": "警钟长鸣 | 在人情和面子掩饰下的双面人生",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/04/02/VIDElbaTfaJx6HkQ1Hm1eXUR220402.shtml"
+  },
+  {
+    "title": "警钟60秒 | 掉进了犯罪深渊还不自知",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/25/VIDEXaDXYZbAIbfHBn0ELPLt220325.shtml"
+  },
+  {
+    "title": "警钟60秒 | 现金不敢收,他千方百计进行伪装",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/24/VIDExjgGcq6AaXIA7KxIKJPL220324.shtml"
+  },
+  {
+    "title": "警钟60秒 |“感觉别人送红包是对自己的尊重”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/18/VIDEWV5kFY9GettgKxGKP2oY220318.shtml"
+  },
+  {
+    "title": "警钟60秒 | “你开口要,他们更是求之不得”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/17/VIDEA4yUdVSfe9lHLeZ6jD1F220317.shtml"
+  },
+  {
+    "title": "警钟60秒 | 收收退退的行为，现在想来非常愚蠢",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/11/VIDEzCooUUGkk9Q7LxA85QUc220311.shtml"
+  },
+  {
+    "title": "警钟60秒 | 忏悔书每写一个字都充满泪水和心痛",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/02/VIDEknzAdPbRDmpVX8tSyIiz220302.shtml"
+  },
+  {
+    "title": "警钟60秒 | 临近退休却一切归零",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/03/01/VIDEKeuSaX8oyxzPJTzbEPOC220301.shtml"
+  },
+  {
+    "title": "警钟60秒 | 在征迁中滋生贪念,最终毁了一切",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/02/18/VIDE4ov0OhIBxHbHXiqb06ma220218.shtml"
+  },
+  {
+    "title": "警钟60秒 | 违纪违法的成本根本就付不起",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/02/22/VIDELDsgAi3c1gwwXgvFimqs220222.shtml"
+  },
+  {
+    "title": "警钟60秒｜主动跳入“围猎”圈的县长",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/01/28/VIDEVXzAOsRNeipMXu72WZ32220128.shtml"
+  },
+  {
+    "title": "警钟60秒 | 发财梦终成“白日梦”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/01/27/VIDEgG9TfVkDVhR3CgvGK7d8220127.shtml"
+  },
+  {
+    "title": "警钟60秒 | 跟老板“你我不分” 最终害了自己",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/01/07/VIDEBj7nJfohjXnG6G1cqD8c220107.shtml"
+  },
+  {
+    "title": "警钟60秒 | 心无惧行无戒，路就越走越偏",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2022/01/04/VIDEqe6T5YZkJSIHegwssU0W220104.shtml"
+  },
+  {
+    "title": "警钟60秒 | 设置障碍卡要，悔之莫及",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/24/VIDEvxlXI4KmJAHm14SDNyYC211224.shtml"
+  },
+  {
+    "title": "警钟60秒丨我渴望自由，阳光照到屋里我都不舍得踩",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/24/VIDElqWyFqNfT3KueeDGKI1F211224.shtml"
+  },
+  {
+    "title": "警钟60秒 | 收下5万块钱后,他逐渐滑向腐败深渊",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/29/VIDE9lG02DnX6ItlrGxUn7Be211229.shtml"
+  },
+  {
+    "title": "警钟60秒丨回头看，就是在给自己挖坑",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/21/VIDENy8TJxWHS3KNZ3EGxLGw211221.shtml"
+  },
+  {
+    "title": "警钟60秒 | 用权力去敛财,它就是让人追悔莫及的\"穿心剑\"",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/17/VIDEwXtfFqqnUbcBY12JXaTp211217.shtml"
+  },
+  {
+    "title": "警钟60秒 | 贪念这个东西害死人",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/07/VIDEzIpfyh99ykhGecDZYS1p211207.shtml"
+  },
+  {
+    "title": "警钟60秒|不少所谓朋友 只是为了利用我的权力",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/10/VIDESWx81ugRvKtOwX2PGBiH211210.shtml"
+  },
+  {
+    "title": "警钟60秒 | 让我的子女在同事面前不敢谈论自己的家庭",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/11/VIDEYNNslOLmmdh3R1zzGW66211211.shtml"
+  },
+  {
+    "title": "警钟60秒 | 将黑手伸向公款的时候，暴露只是时间问题",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/03/VIDEJZVfoyLtzmKouvmZmpdM211203.shtml"
+  },
+  {
+    "title": "警钟60秒 | “现在想让孩子叫我一声爸爸,都听不到了”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/12/03/VIDEkvqYOsfy0qfHX8t5hjCk211203.shtml"
+  },
+  {
+    "title": "警钟60秒 | 想起就流泪 非常恨自己没有管好自己的手",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/26/VIDE2gqQCR7c98JK9JSn2Mhk211126.shtml"
+  },
+  {
+    "title": "警钟60秒 | 想起就流泪 非常恨自己没有管好自己的手",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/26/VIDE2gqQCR7c98JK9JSn2Mhk211126.shtml"
+  },
+  {
+    "title": "警钟60秒 | 认为自己功劳很大,贪欲就多了",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/26/VIDEJ4aOE95ukd3qZkyvL4oz211126.shtml"
+  },
+  {
+    "title": "警钟60秒|向组织讲清问题 这是最好的出路",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/23/VIDEH4eqinEmnnSjTqUOjlAm211123.shtml"
+  },
+  {
+    "title": "警钟60秒 | 心存歪念，害了自己和家庭",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/19/VIDES69NeNRwaAT71V31kN8j211119.shtml"
+  },
+  {
+    "title": "警钟长鸣 | 放纵司机当掮客 亲清不分食恶果",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/14/VIDEdhxy65fxKGfFyA3ySKy8211114.shtml"
+  },
+  {
+    "title": "警钟60秒 | 一直干干净净的话那该有多好",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/04/VIDEXjUvmeTE161SURwmG1uj211104.shtml"
+  },
+  {
+    "title": "警钟60秒 | 经济账名誉账亲情账 都亏得一败涂地",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/11/05/VIDE2URwM07RGwPBPbEHelEL211105.shtml"
+  },
+  {
+    "title": "警钟60秒 | 从产生贪念的那一刻就埋下了罪恶的种子",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/22/VIDE8ahr4ARnM3Q33Be0xAGF211022.shtml"
+  },
+  {
+    "title": "警钟60秒 | “一把手”有了私心,离犯罪就不远了",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/29/VIDEHx4aUuqjZp9gbZVBONjJ211029.shtml"
+  },
+  {
+    "title": "警钟60秒 | 我把妻子的叮咛当成了耳旁风",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/29/VIDEeW0yqYLweypxb2ve0jef211029.shtml"
+  },
+  {
+    "title": "警钟60秒 | 一步错 步步错",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/25/VIDEint6ZeWioPOeGK1HtFBz211025.shtml"
+  },
+  {
+    "title": "警钟60秒 | 收下这笔钱,几年的时间都在后悔中度过",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/22/VIDEm09BuE3x5I9py3EJNpHz211022.shtml"
+  },
+  {
+    "title": "警钟60秒 | 贪念上了头，就无可救药",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/22/VIDEf5pG95OPjomPYtEgYJmy211022.shtml"
+  },
+  {
+    "title": "警钟60秒 | 手握公权力的,一定要收紧思想这根弦",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/18/VIDEzzVd1FjBiI8Mncjsppmv211018.shtml"
+  },
+  {
+    "title": "警钟60秒 | 最后悔的就是没听党的话",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/18/VIDEvFwtBzTztULUvhgxYGCC211018.shtml"
+  },
+  {
+    "title": "警钟60秒 | 相信再赌一把能赢回来 结果越陷越深",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/15/VIDE7VRMN6bpQUcIcQhQxUU5211015.shtml"
+  },
+  {
+    "title": "警钟60秒 | “如果世上有后悔药,我肯定要去买来吃”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/12/VIDE320IggHqObZcq0caeuVX211012.shtml"
+  },
+  {
+    "title": "警钟60秒 | 从小错到大错，最后走上了不归路",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/14/VIDE5Kk8FNCcnZZlJ6wGjW1N211014.shtml"
+  },
+  {
+    "title": "警钟 | 自认国企特殊 享乐放纵迷打球",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202206/t20220601_196388.html"
+  },
+  {
+    "title": "警钟60秒 | 从拿几张卡开始,执法行为走向偏差",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/10/09/VIDEij81zVOCdyURPTNfuy14211009.shtml"
+  },
+  {
+    "title": "警钟 | 从失衡失落到失控",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202206/t20220601_196386.html"
+  },
+  {
+    "title": "警钟60秒 | 我最好的6个“朋友”把我送进了监狱",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/09/10/VIDE0t9fo7mBBDKSxr7KcBis210910.shtml"
+  },
+  {
+    "title": "警钟60秒 | 越过了那条线，你会后悔一辈子",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/09/08/VIDEEY4lwNdBE4pFvbfjZDFZ210908.shtml"
+  },
+  {
+    "title": "警钟60秒 | “伸手必被捉，这句话是真的”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/09/03/VIDEIIvAHGKV6Rh9V5A4vw9k210903.shtml"
+  },
+  {
+    "title": "警钟60秒 | 一点法纪观念都没有，想侥幸过关",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/08/20/VIDEcLHstvAe1NvWOR5nelS2210820.shtml"
+  },
+  {
+    "title": "警钟60秒|醉心攀比,这名国企董事长丢弃了原则",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/08/20/VIDEjdU2kctfPwmG6UQOYrMO210820.shtml"
+  },
+  {
+    "title": "警钟 | “以权谋私赚大钱的思想像魔鬼一样驱使着我”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/08/20/VIDEsmiX3Wffsgt9R4Ew5GC9210820.shtml"
+  },
+  {
+    "title": "警钟60秒 | 以为烟酒相伴、钱财相送就是“兄弟”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/08/13/VIDEPC2t9GSMlVFAqDYLumEC210813.shtml"
+  },
+  {
+    "title": "警钟 | 被贪婪葬送的警监",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202206/t20220601_196384.html"
+  },
+  {
+    "title": "警钟60秒丨个人消费让老板买单 他自以为很安全",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/08/06/VIDEPklf6uOqhs6vHLkviBvA210806.shtml"
+  },
+  {
+    "title": "警钟60秒 | 他后悔没把父亲的教诲放在心上",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/07/30/VIDEyBc9uDhUpe3V7VS6g6c0210730.shtml"
+  },
+  {
+    "title": "警钟60秒 | 相当于睡在人民币上 怎么睡得着",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/06/11/VIDEpWHkEpneRpebLqwSxyfo210611.shtml"
+  },
+  {
+    "title": "警钟60秒 | 一次两次帮他办事,第三次就会让你突破底线",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/06/04/VIDE7Nj5p6o6BZnvVcwaSWsV210604.shtml"
+  },
+  {
+    "title": "警钟60秒 | 交往不分界线 他沦为黑恶势力保护伞",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/05/28/VIDEI3DuTmmr2ZezPciiXvtC210528.shtml"
+  },
+  {
+    "title": "警钟60秒 | 我现在的下场是有亲人不能相见，你说要钱何用",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/05/21/VIDE1h9BB4IGFi3VeI8td1H2210521.shtml"
+  },
+  {
+    "title": "警钟60秒|这些所谓朋友,只是时时关注我的权力",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/05/21/VIDE1TWaedQhBmXDuQEN3ceD210521.shtml"
+  },
+  {
+    "title": "警钟60秒 | 世界观人生观偏离了以后,他变成了自己原来厌恶的那种人",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/05/14/VIDETDfrRtl9XI4ADWtmrOTf210514.shtml"
+  },
+  {
+    "title": "云南省教育厅原副厅长朱华山严重违纪违法案剖析",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/04/28/VIDEPrS2dSv8OntDlVH7UX5z210428.shtml"
+  },
+  {
+    "title": "警钟60秒 | 为买学区房,她挪用公款543笔",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/04/23/VIDEVHG7qRtvQzVtVGGlmvUi210423.shtml"
+  },
+  {
+    "title": "警钟60秒｜从收一点小钱开始走上犯罪道路",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/04/09/VIDE5qI7amYK3WeC4RbpN0vZ210409.shtml"
+  },
+  {
+    "title": "收的资金就是“定时炸弹”",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/04/07/VIDEcu7pdqo61bL4ugGKm0SU210407.shtml"
+  },
+  {
+    "title": "警钟 | 在围猎面前败下阵来",
+    "status": "fetch_failed",
+    "url": "https://www.ccdi.gov.cn/jzn/202104/t20210407_16631.html"
+  },
+  {
+    "title": "做了17年副局长,将权力变成获取私利的工具",
+    "status": "skipped_video",
+    "url": "http://v.ccdi.gov.cn/2021/04/01/VIDE4pIq9eAZKXWfDK5tPtaZ210401.shtml"
+  }
+]

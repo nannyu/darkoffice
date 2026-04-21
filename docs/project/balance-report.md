@@ -7,9 +7,11 @@
 - Avg final COR: 14.4
 
 ## Outcome Distribution
+
 - SURVIVED: 5
 
 ## Action Performance
+
 - SOFT_REFUSE: turns=12, success_rate=0.083, critical_fail_rate=0.167
 - NARROW_SCOPE: turns=10, success_rate=0.4, critical_fail_rate=0.4
 - RECOVERY_BREAK: turns=10, success_rate=0.2, critical_fail_rate=0.3
