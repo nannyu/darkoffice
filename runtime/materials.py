@@ -356,7 +356,7 @@ def load_active_custom_events(db_path: str | None = None) -> dict[str, list[Even
         events_by_char: dict[str, list[Event]] = {}
         for row in rows:
             data = json.loads(row["card_data_json"])
-            character_id = data.get("source_character", "CHR_01")
+            character_id = data.get("character_id", "CHR_01")
             event = Event(
                 event_id=row["card_id"],
                 character_id=character_id,

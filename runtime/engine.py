@@ -22,6 +22,14 @@ from runtime.materials import (
 from runtime.storylines import get_active_storyline, advance_act
 
 
+def _character_name_map(db_path: str | None = None) -> dict[str, str]:
+    """构建包含内置和自定义角色的名称映射。"""
+    names = dict(CHARACTER_NAME_MAP)
+    for c in load_active_custom_characters(db_path):
+        names[c.character_id] = c.name
+    return names
+
+
 INITIAL_STATE = {
     "hp": 100,
     "en": 100,
@@ -397,8 +405,34 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
         raw = dict(session)
         simulated_next_turn = int(raw["turn_index"]) + 1
         next_time_period = _time_period(simulated_next_turn)
-        character_id = _pick_character(raw, conn, next_time_period, db_path)
-        event = _pick_event(session_id, character_id, conn, db_path)
+        name_map = _character_name_map(db_path)
+
+        # 优先从剧情线获取下一幕的角色与事件
+        storyline = get_active_storyline(session_id, db_path)
+        if storyline and storyline.get("current_act"):
+            act = storyline["current_act"]
+            character_id = act.get("character_id", "CHR_01")
+            event_ids = act.get("event_ids", [])
+            if event_ids:
+                event_id = event_ids[0]
+                # 从合并事件池中查找事件名称
+                built_in_events = EVENTS_BY_CHARACTER
+                custom_events = load_active_custom_events(db_path)
+                all_events = merge_events(built_in_events, custom_events)
+                event_name = event_id
+                for ev in all_events.get(character_id, []):
+                    if ev.event_id == event_id:
+                        event_name = ev.name
+                        break
+            else:
+                event_id = "EVT_GENERIC"
+                event_name = "剧情事件"
+        else:
+            character_id = _pick_character(raw, conn, next_time_period, db_path)
+            event = _pick_event(session_id, character_id, conn, db_path)
+            event_id = event.get("event_id", "EVT_GENERIC")
+            event_name = event.get("name") or event.get("event_name") or event_id
+
         risk_tip = "风险偏高，优先考虑留痕或缩小范围。" if raw["risk"] >= 40 else "保持节奏，避免口头承诺。"
         return {
             "turn_index": simulated_next_turn,
@@ -413,9 +447,9 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
                 "污染": raw["cor"],
             },
             "event_summary": {
-                "actor": CHARACTER_NAME_MAP.get(character_id, "未知角色"),
-                "event": event.get("name") or event.get("event_name") or event["event_id"],
-                "prompt": f"{CHARACTER_NAME_MAP.get(character_id, '某人')} 发来新压力：{event.get('name') or event['event_id']}",
+                "actor": name_map.get(character_id, "未知角色"),
+                "event": event_name,
+                "prompt": f"{name_map.get(character_id, '某人')} 发来新压力：{event_name}",
             },
             "risk_tip": risk_tip,
             "options": _build_options(raw),
