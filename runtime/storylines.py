@@ -28,6 +28,7 @@ import json
 from typing import Optional
 
 from runtime.db import connect, init_db
+from runtime.branches import match_branch, check_endings
 
 
 # ---------------------------------------------------------------------------
@@ -39,6 +40,7 @@ def create_storyline(
     title: str,
     description: str = "",
     acts: list[dict] | None = None,
+    metadata: dict | None = None,
     db_path: str | None = None,
 ) -> str:
     """创建一条剧情线，返回 storyline_id。"""
@@ -47,14 +49,15 @@ def create_storyline(
         init_db(conn)
         conn.execute(
             """
-            INSERT INTO storylines (storyline_id, title, description, acts_json)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO storylines (storyline_id, title, description, acts_json, metadata_json)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 storyline_id,
                 title,
                 description,
                 json.dumps(acts or [], ensure_ascii=False),
+                json.dumps(metadata or {}, ensure_ascii=False),
             ),
         )
         conn.commit()
@@ -86,6 +89,7 @@ def get_storyline(storyline_id: str, db_path: str | None = None) -> dict:
             raise ValueError(f"storyline not found: {storyline_id}")
         result = dict(row)
         result["acts"] = json.loads(result.get("acts_json", "[]"))
+        result["metadata"] = json.loads(result.get("metadata_json", "{}"))
         return result
     finally:
         conn.close()
@@ -119,7 +123,7 @@ def activate_storyline(
     try:
         # 停用该 session 已有的剧情线
         conn.execute(
-            "UPDATE storylines SET is_active = 0, session_id = NULL WHERE session_id = ?",
+            "UPDATE storylines SET is_active = 0 WHERE session_id = ?",
             (session_id,),
         )
         # 激活新剧情线
@@ -149,7 +153,7 @@ def deactivate_storyline(session_id: str, db_path: str | None = None) -> bool:
     conn = connect(db_path)
     try:
         cur = conn.execute(
-            "UPDATE storylines SET is_active = 0, session_id = NULL WHERE session_id = ? AND is_active = 1",
+            "UPDATE storylines SET is_active = 0 WHERE session_id = ? AND is_active = 1",
             (session_id,),
         )
         conn.execute(
@@ -166,11 +170,28 @@ def deactivate_storyline(session_id: str, db_path: str | None = None) -> bool:
 # 幕推进
 # ---------------------------------------------------------------------------
 
-def advance_act(session_id: str, db_path: str | None = None) -> Optional[dict]:
-    """推进剧情线到下一幕。
+def advance_act(
+    session_id: str,
+    action_type: str | None = None,
+    result_tier: str | None = None,
+    state: dict | None = None,
+    turn_logs: list[dict] | None = None,
+    turn_index: int | None = None,
+    db_path: str | None = None,
+) -> dict | None:
+    """推进剧情线到下一幕。支持分支条件和结局判定。
+
+    Args:
+        action_type: 当前回合行动类型（用于分支判断）
+        result_tier: 当前回合结果等级（用于分支判断）
+        state: 当前状态（用于分支/结局判断）
+        turn_logs: 历史回合日志（用于 action_history 判断）
+        turn_index: 当前回合数（用于 turn_index_min/max 判断）
 
     Returns:
-        下一幕的信息 dict，若剧情线已结束返回 None。
+        - 下一幕 dict（正常推进或分支跳转）
+        - {"ending": ending_dict}（触发结局）
+        - None（剧情线结束且无结局）
     """
     conn = connect(db_path)
     try:
@@ -178,33 +199,103 @@ def advance_act(session_id: str, db_path: str | None = None) -> Optional[dict]:
             "SELECT * FROM storylines WHERE session_id = ? AND is_active = 1",
             (session_id,),
         ).fetchone()
+
+        # 如果剧情线已结束，仍检查结局条件
         if not row:
+            ended_row = conn.execute(
+                "SELECT * FROM storylines WHERE session_id = ? AND is_active = 0",
+                (session_id,),
+            ).fetchone()
+            if ended_row and state is not None:
+                ended_storyline = dict(ended_row)
+                metadata = json.loads(ended_storyline.get("metadata_json", "{}"))
+                endings = metadata.get("endings", [])
+                if endings:
+                    triggered = check_endings(endings, state, turn_logs, turn_index)
+                    if triggered:
+                        return {"ending": triggered}
             return None
 
         storyline = dict(row)
         acts = json.loads(storyline.get("acts_json", "[]"))
         current_idx = int(storyline.get("current_act_index", 0))
-        next_idx = current_idx + 1
+        metadata = json.loads(storyline.get("metadata_json", "{}"))
+        endings = metadata.get("endings", [])
 
-        if next_idx >= len(acts):
-            # 剧情线已完成，自动停用
-            conn.execute(
-                "UPDATE storylines SET is_active = 0, session_id = NULL WHERE storyline_id = ?",
-                (storyline["storyline_id"],),
-            )
-            conn.execute(
-                "UPDATE game_sessions SET storyline_id = NULL WHERE session_id = ?",
-                (session_id,),
-            )
-            conn.commit()
-            return None
+        # ---- 1. 检查当前幕的分支条件（优先于结局） ----
+        current_act = acts[current_idx] if current_idx < len(acts) else None
+        if current_act and action_type is not None:
+            branches = current_act.get("branches", [])
+            if branches and state is not None:
+                matched = match_branch(
+                    branches,
+                    action_type,
+                    result_tier or "",
+                    state,
+                    turn_logs,
+                    turn_index,
+                )
+                if matched:
+                    target_act_index = matched["target_act"]
+                    # target_act 是 act_index 而非数组索引，需要查找
+                    target_array_idx = None
+                    for idx, act in enumerate(acts):
+                        if act.get("act_index") == target_act_index:
+                            target_array_idx = idx
+                            break
+                    if target_array_idx is not None:
+                        conn.execute(
+                            "UPDATE storylines SET current_act_index = ? WHERE storyline_id = ?",
+                            (target_array_idx, storyline["storyline_id"]),
+                        )
+                        conn.commit()
+                        # 将分支的 narrative 合并到目标幕
+                        target_act = dict(acts[target_array_idx])
+                        if matched.get("narrative"):
+                            target_act["_branch_narrative"] = matched["narrative"]
+                        if matched.get("label"):
+                            target_act["_branch_label"] = matched["label"]
+                        return target_act
 
+        # ---- 2. 默认推进 ----
+        # 优先使用当前幕的 next_act_index 字段；否则查找当前 act_index 的下一个
+        current_act_data = acts[current_idx] if current_idx < len(acts) else None
+        next_act_index = current_act_data.get("next_act_index") if current_act_data else None
+
+        if next_act_index is not None:
+            # 通过 act_index 查找目标数组索引
+            target_array_idx = None
+            for idx, act in enumerate(acts):
+                if act.get("act_index") == next_act_index:
+                    target_array_idx = idx
+                    break
+            if target_array_idx is not None:
+                conn.execute(
+                    "UPDATE storylines SET current_act_index = ? WHERE storyline_id = ?",
+                    (target_array_idx, storyline["storyline_id"]),
+                )
+                conn.commit()
+                return acts[target_array_idx]
+
+        # ---- 3. 剧情线自然结束，检查结局条件 ----
+        if endings and state is not None:
+            triggered = check_endings(endings, state, turn_logs, turn_index)
+            if triggered:
+                # 触发结局，停用剧情线
+                conn.execute(
+                    "UPDATE storylines SET is_active = 0 WHERE storyline_id = ?",
+                    (storyline["storyline_id"],),
+                )
+                conn.commit()
+                return {"ending": triggered}
+
+        # 无结局，剧情线结束（保留 game_sessions.storyline_id 以便后续结局检查）
         conn.execute(
-            "UPDATE storylines SET current_act_index = ? WHERE storyline_id = ?",
-            (next_idx, storyline["storyline_id"]),
+            "UPDATE storylines SET is_active = 0 WHERE storyline_id = ?",
+            (storyline["storyline_id"],),
         )
         conn.commit()
-        return acts[next_idx]
+        return None
     finally:
         conn.close()
 
@@ -234,6 +325,7 @@ def get_active_storyline(session_id: str, db_path: str | None = None) -> Optiona
         current_idx = int(storyline.get("current_act_index", 0))
 
         current_act = acts[current_idx] if current_idx < len(acts) else None
+        metadata = json.loads(storyline.get("metadata_json", "{}"))
         return {
             "storyline_id": storyline["storyline_id"],
             "title": storyline["title"],
@@ -241,6 +333,7 @@ def get_active_storyline(session_id: str, db_path: str | None = None) -> Optiona
             "current_act_index": current_idx,
             "current_act": current_act,
             "total_acts": len(acts),
+            "metadata": metadata,
         }
     finally:
         conn.close()

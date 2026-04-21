@@ -63,6 +63,7 @@ class TurnResult:
     projects: list[dict]
     next_prompt: dict
     storyline_context: dict | None = None
+    ending: dict | None = None
 
 
 def _json_load(text: str | None, fallback: object) -> object:
@@ -581,17 +582,6 @@ def apply_turn(
         if not projects:
             projects = [_replenish_project()]
 
-        # ---- 剧情线推进 ----
-        # 当幕事件已结算，检查是否需要推进到下一幕
-        storyline_context = None
-        if raw_session.get("storyline_id"):
-            next_act = advance_act(session_id, db_path)
-            if next_act:
-                storyline_context = {
-                    "storyline_id": raw_session["storyline_id"],
-                    "next_act": next_act,
-                }
-
         new_state = {
             "hp": raw_session["hp"] + delta["hp"],
             "en": raw_session["en"] + delta["en"],
@@ -603,6 +593,37 @@ def apply_turn(
         new_state = _clamp_state(new_state)
         statuses = _derive_statuses(new_state, event["event_id"], hazards)
         failure_type = _resolve_failure(new_state)
+
+        # ---- 剧情线推进 ----
+        storyline_context = None
+        ending = None
+        if raw_session.get("storyline_id"):
+            # 获取历史回合日志用于 action_history 判断
+            history_rows = conn.execute(
+                "SELECT action_type FROM turn_logs WHERE session_id = ? ORDER BY id",
+                (session_id,),
+            ).fetchall()
+            turn_logs = [dict(r) for r in history_rows]
+            next_result = advance_act(
+                session_id,
+                action_type=action_type,
+                result_tier=tier,
+                state=new_state,
+                turn_logs=turn_logs,
+                turn_index=new_turn,
+                db_path=db_path,
+            )
+            if next_result and "ending" in next_result:
+                ending = next_result["ending"]
+                storyline_context = {
+                    "storyline_id": raw_session["storyline_id"],
+                    "ending": ending,
+                }
+            elif next_result:
+                storyline_context = {
+                    "storyline_id": raw_session["storyline_id"],
+                    "next_act": next_result,
+                }
 
         conn.execute(
             """
@@ -669,6 +690,7 @@ def apply_turn(
             projects=projects,
             next_prompt=build_next_prompt(session_id, db_path),
             storyline_context=storyline_context,
+            ending=ending,
         )
     finally:
         conn.close()

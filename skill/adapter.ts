@@ -70,9 +70,17 @@ function renderTurnOutput(payload: Record<string, unknown>): void {
     console.log(`💀 失败: ${failure}`);
   }
   console.log(`📉 Delta: HP ${delta.hp ?? 0} | EN ${delta.en ?? 0} | ST ${delta.st ?? 0} | KPI ${delta.kpi ?? 0} | RISK ${delta.risk ?? 0} | COR ${delta.cor ?? 0}`);
+  const ending = payload.ending as Record<string, unknown> | null;
+  if (ending) {
+    const endingType = String(ending.ending_type ?? "");
+    const icon = endingType === "good" ? "✨" : endingType === "black" ? "🖤" : "💀";
+    console.log(`───────────────────────────────────────`);
+    console.log(`${icon} 结局：${ending.name}`);
+    console.log(`   ${ending.description}`);
+  }
   console.log("───────────────────────────────────────");
 
-  if (options.length > 0 && !failure) {
+  if (options.length > 0 && !failure && !ending) {
     console.log("📋 下一回合选项:");
     for (const opt of options) {
       console.log(`  ${opt.index}. ${opt.title} — ${opt.summary}`);

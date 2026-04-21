@@ -134,6 +134,7 @@ def main() -> None:
     sl_create_p.add_argument("--title", required=True)
     sl_create_p.add_argument("--description", default="")
     sl_create_p.add_argument("--acts", default="[]", help="JSON 格式的幕定义数组")
+    sl_create_p.add_argument("--metadata", default="{}", help="JSON 格式的元数据（含 endings 等）")
 
     sl_list_p = sub.add_parser("storyline-list", help="列出剧情线")
 
@@ -198,6 +199,7 @@ def main() -> None:
                 "projects": result.projects,
                 "next_prompt": result.next_prompt,
                 "storyline_context": result.storyline_context,
+                "ending": result.ending,
             }
         )
         return
@@ -306,11 +308,13 @@ def main() -> None:
     # ---- 剧情线命令处理 ----
     if args.cmd == "storyline-create":
         acts = json.loads(args.acts)
+        metadata = json.loads(args.metadata)
         sid = create_storyline(
             storyline_id=args.storyline_id,
             title=args.title,
             description=args.description,
             acts=acts,
+            metadata=metadata,
             db_path=db,
         )
         _out({"ok": True, "storyline_id": sid})
