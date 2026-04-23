@@ -19,6 +19,8 @@
     "skill:check-env": "bash scripts/check_env.sh",
     "skill:verify": "bash scripts/verify_skill.sh",
     "skill:bundle": "python3 scripts/build_skill_bundle.py",
+    "mechanics:snapshot": "python3 scripts/game_state_cli.py mechanics",
+    "mechanics:render": "python3 scripts/render_mechanics_visual.py",
     "sim:balance": "python3 scripts/simulate_balance.py --runs 20 --turns 30",
     "test": "npm run skill:health"
   },

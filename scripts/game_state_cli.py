@@ -17,6 +17,7 @@ from runtime.engine import (
     get_history,
     get_session,
 )
+from runtime.mechanics import build_mechanics_snapshot
 from runtime.materials import (
     add_material,
     list_materials,
@@ -75,6 +76,9 @@ def main() -> None:
 
     prompt_p = sub.add_parser("prompt")
     prompt_p.add_argument("session_id")
+
+    mechanics_p = sub.add_parser("mechanics", help="导出游戏规则引擎快照")
+    mechanics_p.add_argument("--with-custom", action="store_true", help="包含当前数据库中激活的自定义卡牌")
 
     # ---- 素材库命令 ----
     mat_add_p = sub.add_parser("material-add", help="手动录入素材")
@@ -216,6 +220,11 @@ def main() -> None:
 
     if args.cmd == "prompt":
         data = build_next_prompt(args.session_id, db)
+        _out(data)
+        return
+
+    if args.cmd == "mechanics":
+        data = build_mechanics_snapshot(db, include_custom=args.with_custom)
         _out(data)
         return
 

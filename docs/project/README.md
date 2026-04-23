@@ -8,6 +8,7 @@
 2. [scope-and-milestones.md](/Users/niunan/project/darkoffice/docs/project/scope-and-milestones.md)
 3. [glossary.md](/Users/niunan/project/darkoffice/docs/project/glossary.md)
 4. [design-pillars.md](/Users/niunan/project/darkoffice/docs/project/design-pillars.md)
+5. [wechat-mini-program-architecture.md](/Users/niunan/project/darkoffice/docs/project/wechat-mini-program-architecture.md)
 
 后续可扩展文档：
 

@@ -18,13 +18,14 @@
 | 系统文档 | 对应 runtime 模块 | 关键函数/类 |
 |---------|------------------|------------|
 | `card-system.md` | `runtime/content.py` | `Character`, `Event` dataclass |
-| `turn-flow.md` | `runtime/engine.py` | `apply_turn()`, `build_next_prompt()` |
-| `stats-and-resources.md` | `runtime/engine.py` | `_clamp_state()`, `_status_modifier()` |
-| `event-generation.md` | `runtime/engine.py` | `_pick_character()`, `_pick_event()` |
+| `turn-flow.md` | `runtime/engine.py` + `runtime/rules.py` | `apply_turn()`, `build_next_prompt()`, `TURN_FLOW_STEPS` |
+| `stats-and-resources.md` | `runtime/engine.py` + `runtime/rules.py` | `_clamp_state()`, `_status_modifier()`, `RESOURCE_DEFINITIONS` |
+| `event-generation.md` | `runtime/engine.py` + `runtime/rules.py` | `_pick_character()`, `_pick_event()`, `TIME_PERIOD_RULES` |
 | `character-system.md` | `runtime/content.py` + `runtime/materials.py` | `Character` + `load_active_custom_characters()` |
-| `status-hazard-project.md` | `runtime/engine.py` | `_derive_statuses()`, `_tick_hazards()`, `_tick_projects()` |
-| `rules-and-resolution.md` | `runtime/engine.py` | `_tier_by_roll()` |
-| `conversation-interaction.md` | `runtime/engine.py` | `build_next_prompt()` |
+| `status-hazard-project.md` | `runtime/engine.py` + `runtime/rules.py` | `_derive_statuses()`, `_tick_hazards()`, `_tick_projects()`, `EVENT_HAZARD_MAP` |
+| `rules-and-resolution.md` | `runtime/engine.py` + `runtime/rules.py` | `_tier_by_roll()`, `RESOLUTION_TIER_RULES` |
+| `conversation-interaction.md` | `runtime/engine.py` + `runtime/rules.py` | `build_next_prompt()`, `ACTION_RULES` |
+| `visualizations/README.md` | `runtime/mechanics.py` + `scripts/render_mechanics_visual.py` | `build_mechanics_snapshot()`, `game-mechanics.html` |
 
 ### 剧情线系统
 
