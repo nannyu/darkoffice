@@ -2,6 +2,7 @@ import json
 import random
 import sqlite3
 from dataclasses import dataclass
+from copy import deepcopy
 from typing import Optional
 
 from runtime.db import connect, init_db
@@ -19,7 +20,26 @@ from runtime.materials import (
     merge_characters,
     merge_events,
 )
+from runtime.rules import (
+    ACTION_HAZARD_MAP,
+    ACTION_OPTION_POLICY,
+    ACTION_RULES,
+    DEFAULT_PROJECT,
+    EVENT_HAZARD_MAP,
+    TURNS_PER_DAY,
+    resolution_tier_for_score,
+    time_period_for_turn,
+    time_period_weight_modifiers,
+)
 from runtime.storylines import get_active_storyline, advance_act
+
+
+def _character_name_map(db_path: str | None = None) -> dict[str, str]:
+    """构建包含内置和自定义角色的名称映射。"""
+    names = dict(CHARACTER_NAME_MAP)
+    for c in load_active_custom_characters(db_path):
+        names[c.character_id] = c.name
+    return names
 
 
 INITIAL_STATE = {
@@ -30,10 +50,6 @@ INITIAL_STATE = {
     "risk": 0,
     "cor": 0,
 }
-
-# 每 24 回合为 1 个工作日（每回合 20 分钟，24 回合 = 8 小时）
-TURNS_PER_DAY = 24
-
 
 @dataclass
 class TurnResult:
@@ -55,6 +71,7 @@ class TurnResult:
     projects: list[dict]
     next_prompt: dict
     storyline_context: dict | None = None
+    ending: dict | None = None
 
 
 def _json_load(text: str | None, fallback: object) -> object:
@@ -67,15 +84,7 @@ def _json_load(text: str | None, fallback: object) -> object:
 
 
 def _tier_by_roll(score: int) -> str:
-    if score <= 5:
-        return "CRITICAL_FAIL"
-    if score <= 10:
-        return "FAIL"
-    if score <= 14:
-        return "BARELY"
-    if score <= 18:
-        return "SUCCESS"
-    return "CRITICAL_SUCCESS"
+    return str(resolution_tier_for_score(score)["id"])
 
 
 def _clamp_state(state: dict) -> dict:
@@ -135,29 +144,12 @@ def _time_period(turn_index: int) -> str:
 
     每 24 回合 = 1 个工作日，按 20 分钟/回合映射到职场时间。
     """
-    day_turn = turn_index % TURNS_PER_DAY
-    if day_turn < 9:          # 09:00-12:00 上午
-        return "上午"
-    elif day_turn < 12:       # 12:00-13:00 午休
-        return "午休"
-    elif day_turn < 21:       # 13:00-18:00 下午
-        return "下午"
-    elif day_turn < 24:       # 18:00-21:00 加班
-        return "加班"
-    else:                     # 21:00+ 深夜
-        return "深夜"
+    return str(time_period_for_turn(turn_index)["id"])
 
 
 def _time_period_weight_modifier(time_period: str) -> dict[str, float]:
     """不同时间段的角色权重修正。"""
-    modifiers = {
-        "上午": {"CHR_01": 1.0, "CHR_02": 1.0, "CHR_03": 1.2, "CHR_04": 0.8, "CHR_05": 1.0, "CHR_06": 0.8},
-        "午休": {"CHR_01": 0.5, "CHR_02": 1.5, "CHR_03": 0.5, "CHR_04": 0.5, "CHR_05": 0.5, "CHR_06": 0.3},
-        "下午": {"CHR_01": 1.0, "CHR_02": 1.0, "CHR_03": 1.5, "CHR_04": 1.0, "CHR_05": 1.2, "CHR_06": 1.0},
-        "加班": {"CHR_01": 1.5, "CHR_02": 0.5, "CHR_03": 1.8, "CHR_04": 0.8, "CHR_05": 1.0, "CHR_06": 0.5},
-        "深夜": {"CHR_01": 1.8, "CHR_02": 0.3, "CHR_03": 0.8, "CHR_04": 1.2, "CHR_05": 0.5, "CHR_06": 0.3},
-    }
-    return modifiers.get(time_period, modifiers["上午"])
+    return time_period_weight_modifiers(time_period)
 
 
 def _weighted_pick(options: list[tuple[object, int]]) -> object:
@@ -264,39 +256,18 @@ def _pick_event(session_id: str, character_id: str, conn: sqlite3.Connection, db
 # 隐患生成：覆盖文档中定义的所有事件-隐患映射
 # ---------------------------------------------------------------------------
 
-# 事件→隐患映射表（对应 Skill 文档 possible_followups）
-_EVENT_HAZARD_MAP: dict[str, dict] = {
-    "EVT_04": {"id": "HZD_RESPONSIBILITY", "name": "责任未明确", "countdown": 3, "severity": 2},
-    "EVT_06": {"id": "HZD_RESPONSIBILITY", "name": "责任未明确", "countdown": 3, "severity": 2},
-    "EVT_07": {"id": "HZD_ORAL_PROMISE", "name": "口头承诺", "countdown": 2, "severity": 1},
-    "EVT_08": {"id": "HZD_REQ_UNCONFIRMED", "name": "需求未确认", "countdown": 3, "severity": 1},
-    "EVT_10": {"id": "HZD_ORAL_PROMISE", "name": "口头承诺", "countdown": 2, "severity": 1},
-    "EVT_17": {"id": "HZD_BACKDATED_DOC", "name": "倒签文件", "countdown": 5, "severity": 2},
-    "EVT_18": {"id": "HZD_MISSING_RECEIPT", "name": "报销缺材料", "countdown": 3, "severity": 1},
-    "EVT_19": {"id": "HZD_COMPLIANCE", "name": "合规隐患", "countdown": 3, "severity": 2},
-    "EVT_23": {"id": "HZD_WEEKLY_REPORT", "name": "周报未交", "countdown": 2, "severity": 1},
-    "EVT_24": {"id": "HZD_UNREAD_MSG", "name": "未回消息", "countdown": 2, "severity": 1},
-}
-
-# 行动→隐患映射
-_ACTION_HAZARD_MAP: dict[str, dict] = {
-    "SHIFT_BLAME": {"id": "HZD_ACTION_BLAME", "name": "甩锅痕迹", "countdown": 3, "severity": 1},
-    "DELAY_AVOID": {"id": "HZD_ACTION_DELAY", "name": "拖延积压", "countdown": 2, "severity": 1},
-}
-
-
 def _new_hazard(event_id: str, action_type: str, db_path: str | None = None) -> dict | None:
     """根据事件和行动类型生成隐患卡。合并内置映射与自定义映射。"""
     # 合并自定义隐患
     custom_hazard_map = load_active_custom_hazards(db_path)
-    combined_map = {**_EVENT_HAZARD_MAP, **custom_hazard_map}
+    combined_map = {**EVENT_HAZARD_MAP, **custom_hazard_map}
 
     # 优先检查事件映射
     hazard = combined_map.get(event_id)
     if hazard:
         return dict(hazard)
     # 其次检查行动映射
-    action_hazard = _ACTION_HAZARD_MAP.get(action_type.upper())
+    action_hazard = ACTION_HAZARD_MAP.get(action_type.upper())
     if action_hazard:
         return dict(action_hazard)
     return None
@@ -369,11 +340,11 @@ def _resolve_failure(state: dict) -> str | None:
 
 
 def _build_options(state: dict) -> list[dict]:
-    option_keys = ["DIRECT_EXECUTE", "EMAIL_TRACE", "NARROW_SCOPE", "SOFT_REFUSE"]
+    option_keys = list(ACTION_OPTION_POLICY["core"])
     if state["en"] < 35:
-        option_keys.append("RECOVERY_BREAK")
+        option_keys.append(str(ACTION_OPTION_POLICY["low_energy_bonus"]))
     else:
-        option_keys.append("REQUEST_CONFIRMATION")
+        option_keys.append(str(ACTION_OPTION_POLICY["default_bonus"]))
     options = []
     for idx, key in enumerate(option_keys[:5], start=1):
         display = ACTION_DISPLAY.get(key, {"title": key, "summary": "执行该策略"})
@@ -383,6 +354,7 @@ def _build_options(state: dict) -> list[dict]:
                 "action": key,
                 "title": display["title"],
                 "summary": display["summary"],
+                "category": ACTION_RULES.get(key, {}).get("category", "通用策略"),
             }
         )
     return options
@@ -397,8 +369,34 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
         raw = dict(session)
         simulated_next_turn = int(raw["turn_index"]) + 1
         next_time_period = _time_period(simulated_next_turn)
-        character_id = _pick_character(raw, conn, next_time_period, db_path)
-        event = _pick_event(session_id, character_id, conn, db_path)
+        name_map = _character_name_map(db_path)
+
+        # 优先从剧情线获取下一幕的角色与事件
+        storyline = get_active_storyline(session_id, db_path)
+        if storyline and storyline.get("current_act"):
+            act = storyline["current_act"]
+            character_id = act.get("character_id", "CHR_01")
+            event_ids = act.get("event_ids", [])
+            if event_ids:
+                event_id = event_ids[0]
+                # 从合并事件池中查找事件名称
+                built_in_events = EVENTS_BY_CHARACTER
+                custom_events = load_active_custom_events(db_path)
+                all_events = merge_events(built_in_events, custom_events)
+                event_name = event_id
+                for ev in all_events.get(character_id, []):
+                    if ev.event_id == event_id:
+                        event_name = ev.name
+                        break
+            else:
+                event_id = "EVT_GENERIC"
+                event_name = "剧情事件"
+        else:
+            character_id = _pick_character(raw, conn, next_time_period, db_path)
+            event = _pick_event(session_id, character_id, conn, db_path)
+            event_id = event.get("event_id", "EVT_GENERIC")
+            event_name = event.get("name") or event.get("event_name") or event_id
+
         risk_tip = "风险偏高，优先考虑留痕或缩小范围。" if raw["risk"] >= 40 else "保持节奏，避免口头承诺。"
         return {
             "turn_index": simulated_next_turn,
@@ -413,9 +411,9 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
                 "污染": raw["cor"],
             },
             "event_summary": {
-                "actor": CHARACTER_NAME_MAP.get(character_id, "未知角色"),
-                "event": event.get("name") or event.get("event_name") or event["event_id"],
-                "prompt": f"{CHARACTER_NAME_MAP.get(character_id, '某人')} 发来新压力：{event.get('name') or event['event_id']}",
+                "actor": name_map.get(character_id, "未知角色"),
+                "event": event_name,
+                "prompt": f"{name_map.get(character_id, '某人')} 发来新压力：{event_name}",
             },
             "risk_tip": risk_tip,
             "options": _build_options(raw),
@@ -427,7 +425,7 @@ def build_next_prompt(session_id: str, db_path: str | None = None) -> dict:
 
 def _replenish_project() -> dict:
     """当所有项目完成时，自动补充新项目（已文档化）。"""
-    return {"id": "PRJ_WEEKLY", "name": "本周交付", "progress": 0, "target": 5, "pressure": 2}
+    return deepcopy(DEFAULT_PROJECT)
 
 
 def create_session(session_id: str, db_path: str | None = None) -> dict:
@@ -503,8 +501,9 @@ def apply_turn(
         # ---- 骰子结算 ----
         roll = random.randint(1, 20)
         score = roll + resolved_action_mod + status_mod
-        tier = _tier_by_roll(score)
-        multiplier = {"CRITICAL_FAIL": 1.5, "FAIL": 1.0, "BARELY": 0.7, "SUCCESS": 0.4, "CRITICAL_SUCCESS": 0.2}[tier]
+        tier_rule = resolution_tier_for_score(score)
+        tier = str(tier_rule["id"])
+        multiplier = float(tier_rule["multiplier"])
 
         # 正值需区分"奖励"和"惩罚"属性：
         # 奖励属性（kpi 正值）：好结果保留/增加，坏结果减少
@@ -547,17 +546,6 @@ def apply_turn(
         if not projects:
             projects = [_replenish_project()]
 
-        # ---- 剧情线推进 ----
-        # 当幕事件已结算，检查是否需要推进到下一幕
-        storyline_context = None
-        if raw_session.get("storyline_id"):
-            next_act = advance_act(session_id, db_path)
-            if next_act:
-                storyline_context = {
-                    "storyline_id": raw_session["storyline_id"],
-                    "next_act": next_act,
-                }
-
         new_state = {
             "hp": raw_session["hp"] + delta["hp"],
             "en": raw_session["en"] + delta["en"],
@@ -569,6 +557,37 @@ def apply_turn(
         new_state = _clamp_state(new_state)
         statuses = _derive_statuses(new_state, event["event_id"], hazards)
         failure_type = _resolve_failure(new_state)
+
+        # ---- 剧情线推进 ----
+        storyline_context = None
+        ending = None
+        if raw_session.get("storyline_id"):
+            # 获取历史回合日志用于 action_history 判断
+            history_rows = conn.execute(
+                "SELECT action_type FROM turn_logs WHERE session_id = ? ORDER BY id",
+                (session_id,),
+            ).fetchall()
+            turn_logs = [dict(r) for r in history_rows]
+            next_result = advance_act(
+                session_id,
+                action_type=action_type,
+                result_tier=tier,
+                state=new_state,
+                turn_logs=turn_logs,
+                turn_index=new_turn,
+                db_path=db_path,
+            )
+            if next_result and "ending" in next_result:
+                ending = next_result["ending"]
+                storyline_context = {
+                    "storyline_id": raw_session["storyline_id"],
+                    "ending": ending,
+                }
+            elif next_result:
+                storyline_context = {
+                    "storyline_id": raw_session["storyline_id"],
+                    "next_act": next_result,
+                }
 
         conn.execute(
             """
@@ -635,6 +654,7 @@ def apply_turn(
             projects=projects,
             next_prompt=build_next_prompt(session_id, db_path),
             storyline_context=storyline_context,
+            ending=ending,
         )
     finally:
         conn.close()

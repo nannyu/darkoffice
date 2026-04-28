@@ -84,7 +84,8 @@
 2. [docs/project/README.md](/Users/niunan/project/darkoffice/docs/project/README.md) —— 这项目到底想干嘛
 3. [docs/design/README.md](/Users/niunan/project/darkoffice/docs/design/README.md) —— 怎么让玩家爽（或者说，怎么让玩家痛并爽着）
 4. [docs/systems/README.md](/Users/niunan/project/darkoffice/docs/systems/README.md) —— 规则，无情的规则
-5. [docs/content/README.md](/Users/niunan/project/darkoffice/docs/content/README.md) —— 卡牌长什么样
+5. [docs/visualizations/README.md](/Users/niunan/project/darkoffice/docs/visualizations/README.md) —— 规则引擎可视化
+6. [docs/content/README.md](/Users/niunan/project/darkoffice/docs/content/README.md) —— 卡牌长什么样
 
 ## 如果你想参与
 
@@ -104,6 +105,7 @@ docs/                     # 正式文档事实源
 ├── project/              # 项目定位、术语、设计支柱
 ├── design/               # 核心循环、进程推进、结局方向
 ├── systems/              # 卡牌系统、回合流程、判定规则
+├── visualizations/       # 机制总览与结构化规则可视化
 ├── content/              # 角色池、事件库、应对库
 ├── collaboration/        # 开发规范、交接文档
 └── archive/              # 历史的尘埃
@@ -111,12 +113,15 @@ docs/                     # 正式文档事实源
 runtime/                  # 规则执行与数据存取
 ├── db.py                 # SQLite 持久化（5张表 + 迁移）
 ├── engine.py             # 回合结算引擎（状态机、判定、隐患、项目）
+├── rules.py              # 共享规则表（动作、档位、时段、隐患映射）
+├── mechanics.py          # 机制快照导出（CLI / 可视化共用）
 ├── content.py            # Character/Event dataclass
 ├── materials.py          # 素材库 + 自定义卡牌管理
 └── storylines.py         # 剧情线 CRUD + 激活/推进
 
 scripts/                  # 初始化、调试、运维脚本
 ├── game_state_cli.py     # CLI 入口（init/create/turn/show/material/card/storyline）
+├── render_mechanics_visual.py # 机制总览页渲染器
 ├── distill_template.py   # 卡牌蒸馏模板 + Schema 校验
 ├── simulate_balance.py   # 平衡性模拟
 ├── crawl_jingzhong.py    # 警钟栏目爬取
@@ -169,11 +174,15 @@ python3 scripts/game_state_cli.py turn demo --action EMAIL_TRACE --mod 3
 # 4. 查看他还活着吗
 python3 scripts/game_state_cli.py show demo
 
-# 5. 素材库操作
+# 5. 导出规则快照 / 重绘机制图
+python3 scripts/game_state_cli.py mechanics
+python3 scripts/render_mechanics_visual.py
+
+# 6. 素材库操作
 python3 scripts/game_state_cli.py material-list
 python3 scripts/game_state_cli.py material-search --keyword 腐败
 
-# 6. 剧情线操作
+# 7. 剧情线操作
 python3 scripts/game_state_cli.py storyline-list
 python3 scripts/game_state_cli.py storyline-activate demo --storyline-id demo_arc
 ```

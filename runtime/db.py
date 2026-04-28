@@ -81,6 +81,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             title TEXT NOT NULL,
             description TEXT NOT NULL DEFAULT '',
             acts_json TEXT NOT NULL DEFAULT '[]',
+            metadata_json TEXT NOT NULL DEFAULT '{}',
             is_active INTEGER NOT NULL DEFAULT 0,
             current_act_index INTEGER NOT NULL DEFAULT 0,
             session_id TEXT,
@@ -91,6 +92,7 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
     _migrate_turn_logs(conn)
     _migrate_game_sessions(conn)
+    _migrate_storylines(conn)
     conn.commit()
 
 
@@ -117,3 +119,9 @@ def _migrate_game_sessions(conn: sqlite3.Connection) -> None:
     """向后兼容：为旧 game_sessions 表补齐 storyline_id 字段。"""
     if not _column_exists(conn, "game_sessions", "storyline_id"):
         conn.execute("ALTER TABLE game_sessions ADD COLUMN storyline_id TEXT")
+
+
+def _migrate_storylines(conn: sqlite3.Connection) -> None:
+    """向后兼容：为旧 storylines 表补齐 metadata_json 字段。"""
+    if not _column_exists(conn, "storylines", "metadata_json"):
+        conn.execute("ALTER TABLE storylines ADD COLUMN metadata_json TEXT NOT NULL DEFAULT '{}'")

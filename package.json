@@ -15,9 +15,16 @@
     "skill:history": "tsx skill/adapter.ts history",
     "skill:stats": "tsx skill/adapter.ts stats",
     "skill:prompt": "tsx skill/adapter.ts prompt",
+    "skill:play": "tsx skill/adapter.ts play",
     "skill:check-env": "bash scripts/check_env.sh",
+    "skill:verify": "bash scripts/verify_skill.sh",
     "skill:bundle": "python3 scripts/build_skill_bundle.py",
+    "mechanics:snapshot": "python3 scripts/game_state_cli.py mechanics",
+    "mechanics:render": "python3 scripts/render_mechanics_visual.py",
     "sim:balance": "python3 scripts/simulate_balance.py --runs 20 --turns 30",
+    "agents:demo": "tsx src/agents/demo.ts business data/analytics/store-profit-sample.json",
+    "agents:demo:workplace": "tsx src/agents/demo.ts workplace",
+    "typecheck": "tsc --noEmit",
     "test": "npm run skill:health"
   },
   "repository": {

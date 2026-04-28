@@ -16,8 +16,9 @@
 3. [project/README.md](/Users/niunan/project/darkoffice/docs/project/README.md)
 4. [design/README.md](/Users/niunan/project/darkoffice/docs/design/README.md)
 5. [systems/README.md](/Users/niunan/project/darkoffice/docs/systems/README.md)
-6. [content/README.md](/Users/niunan/project/darkoffice/docs/content/README.md)
-7. [archive/legacy-docs.md](/Users/niunan/project/darkoffice/docs/archive/legacy-docs.md)
+6. [visualizations/README.md](/Users/niunan/project/darkoffice/docs/visualizations/README.md)
+7. [content/README.md](/Users/niunan/project/darkoffice/docs/content/README.md)
+8. [archive/legacy-docs.md](/Users/niunan/project/darkoffice/docs/archive/legacy-docs.md)
 
 ## 文档分区
 
@@ -30,6 +31,7 @@
 - [project/scope-and-milestones.md](/Users/niunan/project/darkoffice/docs/project/scope-and-milestones.md)
 - [project/glossary.md](/Users/niunan/project/darkoffice/docs/project/glossary.md)
 - [project/design-pillars.md](/Users/niunan/project/darkoffice/docs/project/design-pillars.md)
+- [project/wechat-mini-program-architecture.md](/Users/niunan/project/darkoffice/docs/project/wechat-mini-program-architecture.md)
 
 ### `design/`
 
@@ -68,6 +70,13 @@
 - [content/response-library.md](/Users/niunan/project/darkoffice/docs/content/response-library.md)
 - [content/sample-card-set.md](/Users/niunan/project/darkoffice/docs/content/sample-card-set.md)
 
+### `visualizations/`
+
+提供结构化规则的可视化页面，帮助对照文档、引擎实现与机制链路。
+
+- [visualizations/README.md](/Users/niunan/project/darkoffice/docs/visualizations/README.md)
+- [visualizations/game-mechanics.html](/Users/niunan/project/darkoffice/docs/visualizations/game-mechanics.html)
+
 ### `collaboration/`
 
 定义开发规范、文档规范、交接方式与 AI/Agent 协作规则。
@@ -99,14 +108,15 @@
 
 | 文档域 | 事实源文档 | 对应 runtime 模块 |
 |--------|-----------|------------------|
-| 数值系统 | `systems/stats-and-resources.md` | `engine.py` (`_clamp_state`, `_status_modifier`) |
-| 回合流程 | `systems/turn-flow.md` | `engine.py` (`apply_turn`, `build_next_prompt`) |
+| 数值系统 | `systems/stats-and-resources.md` | `engine.py` (`_clamp_state`, `_status_modifier`) + `rules.py` |
+| 回合流程 | `systems/turn-flow.md` | `engine.py` (`apply_turn`, `build_next_prompt`) + `rules.py` |
 | 卡牌系统 | `systems/card-system.md` | `content.py` (`Character`, `Event`) |
-| 事件生成 | `systems/event-generation.md` | `engine.py` (`_pick_character`, `_pick_event`) |
+| 事件生成 | `systems/event-generation.md` | `engine.py` (`_pick_character`, `_pick_event`) + `rules.py` |
 | 角色系统 | `systems/character-system.md` | `content.py` (`Character`) + `materials.py` (自定义角色) |
-| 状态/隐患/项目 | `systems/status-hazard-project.md` | `engine.py` (`_derive_statuses`, `_tick_hazards`, `_tick_projects`) |
-| 判定规则 | `systems/rules-and-resolution.md` | `engine.py` (`_tier_by_roll`) |
+| 状态/隐患/项目 | `systems/status-hazard-project.md` | `engine.py` (`_derive_statuses`, `_tick_hazards`, `_tick_projects`) + `rules.py` |
+| 判定规则 | `systems/rules-and-resolution.md` | `engine.py` (`_tier_by_roll`) + `rules.py` |
 | 对话交互 | `systems/conversation-interaction.md` | `engine.py` (`build_next_prompt`) |
+| 机制快照 | `visualizations/README.md` | `mechanics.py` + `game_state_cli.py mechanics` |
 | 素材库 | `darkoffice-skill.md` 第14章 | `materials.py` |
 | 剧情线 | `darkoffice-skill.md` 第15章 | `storylines.py` |
 | 剧情库选择 | `darkoffice-skill.md` §15.7 | Agent 层（自然语言匹配） |

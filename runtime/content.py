@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+from runtime.rules import ACTION_DISPLAY, ACTION_MODIFIERS
+
 
 @dataclass(frozen=True)
 class Character:
@@ -68,59 +70,3 @@ EVENTS: list[Event] = [
 EVENTS_BY_CHARACTER: dict[str, list[Event]] = {}
 for event in EVENTS:
     EVENTS_BY_CHARACTER.setdefault(event.character_id, []).append(event)
-
-ACTION_MODIFIERS: dict[str, int] = {
-    "DIRECT_EXECUTE": 2,
-    "EMAIL_TRACE": 3,
-    "NARROW_SCOPE": 1,
-    "SOFT_REFUSE": 0,
-    "WORK_OVERTIME": 4,
-    "REQUEST_CONFIRMATION": 2,
-    "DELAY_AVOID": -1,
-    "SHIFT_BLAME": 1,
-    "RECOVERY_BREAK": -2,
-    "BOUNDARY_RESTATE": 0,
-}
-
-ACTION_DISPLAY: dict[str, dict[str, str]] = {
-    "DIRECT_EXECUTE": {
-        "title": "立即执行",
-        "summary": "保住绩效，但精力和体力消耗较高",
-    },
-    "EMAIL_TRACE": {
-        "title": "邮件留痕",
-        "summary": "降低后续背锅风险，但会激怒施压方",
-    },
-    "NARROW_SCOPE": {
-        "title": "缩小范围",
-        "summary": "降低本回合压力，但可能留下后续争议",
-    },
-    "SOFT_REFUSE": {
-        "title": "温和拒绝",
-        "summary": "保住边界，但绩效可能受损",
-    },
-    "WORK_OVERTIME": {
-        "title": "熬夜硬扛",
-        "summary": "短期稳住局面，但透支精力和体力",
-    },
-    "REQUEST_CONFIRMATION": {
-        "title": "需求确认",
-        "summary": "减少口头风险，但会增加沟通摩擦",
-    },
-    "DELAY_AVOID": {
-        "title": "拖延规避",
-        "summary": "暂时减压，但后续隐患会累积",
-    },
-    "SHIFT_BLAME": {
-        "title": "转移责任",
-        "summary": "短期脱身，但风险和污染上升",
-    },
-    "RECOVERY_BREAK": {
-        "title": "恢复自保",
-        "summary": "恢复精力体力，但当回合绩效可能下降",
-    },
-    "BOUNDARY_RESTATE": {
-        "title": "边界重申",
-        "summary": "明确责任边界，避免后续扯皮",
-    },
-}
