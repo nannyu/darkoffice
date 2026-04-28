@@ -1,0 +1,22 @@
+<view class="container archive-page">
+  <view class="section-title">存档列表</view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{archives.length === 0}}">
+    <view class="empty-icon">📂</view>
+    <view class="text-secondary">暂无存档</view>
+    <view class="text-muted" style="margin-top: 16rpx; font-size: 24rpx;">
+      开始新游戏后，会话将自动保存
+    </view>
+    <view class="btn-primary" style="margin-top: 48rpx; width: 320rpx;" bindtap="onNewGame">
+      开始新游戏
+    </view>
+  </view>
+
+  <!-- 存档列表 -->
+  <view wx:if="{{archives.length > 0}}">
+    <view class="card" wx:for="{{archives}}" wx:key="session_id">
+      <view class="text-primary">{{item.day}}天 · 回合{{item.turn_index}}</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,29 @@
+.game-page {
+  min-height: 100vh;
+  padding: 0 0 128rpx;
+  background: var(--color-bg-primary);
+}
+
+.game-header {
+  padding: 64rpx 32rpx 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-info {
+  display: flex;
+  gap: 24rpx;
+  align-items: center;
+  font-size: 26rpx;
+}
+
+.risk-tip {
+  margin: 16rpx 32rpx;
+  padding: 16rpx 24rpx;
+  background: rgba(255, 77, 79, 0.1);
+  border-left: 4rpx solid var(--color-neon-red);
+  border-radius: var(--radius-sm);
+  color: var(--color-neon-red);
+  font-size: 24rpx;
+}

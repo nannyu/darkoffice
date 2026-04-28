@@ -1,0 +1,41 @@
+<view class="modal-overlay" wx:if="{{show}}" bindtap="onClose">
+  <view class="modal-content" catchtap="">
+    <!-- 游戏结束 -->
+    <block wx:if="{{ended && ending}}">
+      <view class="ending-badge text-neon-red">游戏结束</view>
+      <view class="ending-title">{{ending.title}}</view>
+      <view class="ending-desc text-secondary">{{ending.description}}</view>
+
+      <view class="modal-actions">
+        <view class="btn-primary" bindtap="onRestart">再来一局</view>
+        <view class="btn-ghost" bindtap="onHome">返回首页</view>
+      </view>
+    </block>
+
+    <!-- 回合结算 -->
+    <block wx:else>
+      <view class="result-header">回合结算</view>
+
+      <!-- 骰子 & 档位 -->
+      <view class="result-dice-area">
+        <view class="dice-value text-neon-orange">{{result.roll_value}}</view>
+        <view class="result-tier tier-{{result.result_tier}}">{{result.result_tier_label}}</view>
+        <view class="result-score text-muted">总分: {{result.total_score}}</view>
+      </view>
+
+      <!-- 资源变化 -->
+      <view class="delta-list">
+        <view class="delta-row" wx:for="{{result.deltaList}}" wx:key="key">
+          <text class="delta-label" style="color: {{item.color}};">{{item.label}}</text>
+          <text class="delta-value {{item.positive ? 'delta-positive' : 'delta-negative'}}">
+            {{item.display}}
+          </text>
+        </view>
+      </view>
+
+      <view class="modal-actions">
+        <view class="btn-primary" bindtap="onClose">继续</view>
+      </view>
+    </block>
+  </view>
+</view>

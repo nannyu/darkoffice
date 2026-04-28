@@ -1,0 +1,10 @@
+<view class="hazard-strip" wx:if="{{hazards.length > 0}}">
+  <scroll-view scroll-x class="hazard-scroll">
+    <view class="hazard-tags">
+      <view class="hazard-tag" wx:for="{{hazards}}" wx:key="id">
+        <text class="hazard-name">{{item.name}}</text>
+        <text class="hazard-countdown">⏱{{item.countdown}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

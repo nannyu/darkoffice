@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗黑职场 2.0 - 项目全景</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+        
+        .header .subtitle {
+            font-size: 20px;
+            color: #a0a0a0;
+        }
+        
+        .header .tagline {
+            font-size: 24px;
+            color: #ffd93d;
+            margin-top: 16px;
+        }
+        
+        /* 核心定位 */
+        .positioning {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,107,107,0.3);
+        }
+        
+        .positioning h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .positioning .formula {
+            font-size: 28px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(107,203,119,0.1);
+            border-radius: 12px;
+            color: #6bcb77;
+        }
+        
+        /* 双模式卡片 */
+        .modes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .mode-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .mode-card.game::before {
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+        }
+        
+        .mode-card.tool::before {
+            background: linear-gradient(90deg, #6bcb77, #4d96ff);
+        }
+        
+        .mode-card h3 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .mode-card.game h3 {
+            color: #ff6b6b;
+        }
+        
+        .mode-card.tool h3 {
+            color: #6bcb77;
+        }
+        
+        .mode-card .emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .mode-card .trigger {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .mode-card ul {
+            list-style: none;
+            margin-top: 16px;
+        }
+        
+        .mode-card li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .mode-card li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #ffd93d;
+        }
+        
+        /* 架构图 */
+        .architecture {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .architecture h2 {
+            text-align: center;
+            color: #ffd93d;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .arch-layer {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .arch-label {
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+            color: #a0a0a0;
+        }
+        
+        .arch-box {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .arch-item {
+            background: rgba(77,150,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid rgba(77,150,255,0.3);
+        }
+        
+        .arch-item.highlight {
+            background: rgba(255,217,61,0.2);
+            border-color: rgba(255,217,61,0.3);
+            color: #ffd93d;
+        }
+        
+        /* 箭头 */
+        .arrow-down {
+            text-align: center;
+            font-size: 24px;
+            color: #666;
+            margin: 8px 0;
+        }
+        
+        /* 数据源 */
+        .datasources {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .datasources h2 {
+            text-align: center;
+            color: #4d96ff;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .source-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .source-item .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+        
+        .source-item .name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .source-item .desc {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        
+        .source-item .count {
+            display: inline-block;
+            background: rgba(107,203,119,0.2);
+            color: #6bcb77;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        /* 核心能力 */
+        .capabilities {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .capabilities h2 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .cap-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        
+        .cap-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .cap-item .num {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd93d;
+            margin-bottom: 8px;
+        }
+        
+        .cap-item h4 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #e8e8e8;
+        }
+        
+        .cap-item p {
+            color: #a0a0a0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* 峰video框架 */
+        .fengvideo {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            border: 2px solid rgba(255,107,107,0.3);
+        }
+        
+        .fengvideo h2 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .model-item {
+            background: rgba(255,107,107,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .model-item h4 {
+            color: #ff6b6b;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .model-item p {
+            font-size: 13px;
+            color: #a0a0a0;
+        }
+        
+        /* 路线图 */
+        .roadmap {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .roadmap h2 {
+            text-align: center;
+            color: #6bcb77;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .roadmap-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: rgba(107,203,119,0.3);
+            border-radius: 2px;
+        }
+        
+        .road-item {
+            text-align: center;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .road-item .dot {
+            width: 20px;
+            height: 20px;
+            background: #6bcb77;
+            border-radius: 50%;
+            margin: 30px auto 20px;
+            box-shadow: 0 0 20px rgba(107,203,119,0.5);
+        }
+        
+        .road-item .phase {
+            background: rgba(107,203,119,0.2);
+            color: #6bcb77;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .road-item h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .road-item p {
+            font-size: 13px;
+            color: #a0a0a0;
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .modes, .cap-grid, .models-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .roadmap-timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .roadmap-timeline::before {
+                display: none;
+            }
+            
+            .arch-layer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .arch-label {
+                width: auto;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <h1>🎭 暗黑职场 2.0</h1>
+            <p class="subtitle">基于真实案例的职场博弈模拟器</p>
+            <p class="tagline">"不是教你成功学，而是帮你预演职场雷区"</p>
+        </div>
+        
+        <!-- 核心定位 -->
+        <div class="positioning">
+            <h2>🎯 产品定位</h2>
+            <div class="formula">
+                真实案例 × AI推理 × 博弈思维 = 职场生存能力
+            </div>
+        </div>
+        
+        <!-- 双模式 -->
+        <div class="modes">
+            <div class="mode-card game">
+                <div class="emoji">🎮</div>
+                <h3>娱乐模式</h3>
+                <p>暗黑抽卡</p>
+                <span class="trigger">触发词：开始游戏 / 新游戏 / 玩一把</span>
+                <ul>
+                    <li>卡牌驱动叙事</li>
+                    <li>回合制游戏引擎</li>
+                    <li>数值化状态管理</li>
+                    <li>剧情线推进</li>
+                    <li>SQLite持久化存档</li>
+                </ul>
+            </div>
+            
+            <div class="mode-card tool">
+                <div class="emoji">🛠️</div>
+                <h3>工具模式</h3>
+                <p>职场参谋</p>
+                <span class="trigger">触发词：领导 / 同事 / 晋升 / 站队 / 背锅</span>
+                <ul>
+                    <li>情境定位分析</li>
+                    <li>3-4个选项对比</li>
+                    <li>后果概率预测</li>
+                    <li>峰video思维框架</li>
+                    <li>具体话术指导</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 技术架构 -->
+        <div class="architecture">
+            <h2>⚙️ 技术架构</h2>
+            <div class="arch-layers">
+                <div class="arch-layer">
+                    <span class="arch-label">用户层</span>
+                    <div class="arch-box">
+                        <span class="arch-item">飞书机器人</span>
+                        <span class="arch-item">微信小程序</span>
+                        <span class="arch-item">Web(H5)</span>
+                    </div>
+                </div>
+                <div class="arrow-down">▼</div>
+                <div class="arch-layer">
+                    <span class="arch-label">AI层</span>
+                    <div class="arch-box">
+                        <span class="arch-item highlight">职场参谋引擎</span>
+                        <span class="arch-item highlight">峰video思维框架</span>
+                        <span class="arch-item">游戏叙事引擎</span>
+                    </div>
+                </div>
+                <div class="arrow-down">▼</div>
+                <div class="arch-layer">
+                    <span class="arch-label">数据层</span>
+                    <div class="arch-box">
+                        <span class="arch-item">SQLite持久化</span>
+                        <span class="arch-item">女娲蒸馏器</span>
+                        <span class="arch-item highlight">职场参谋模块</span>
+                    </div>
+                </div>
+                <div class="arrow-down">▼</div>
+                <div class="arch-layer">
+                    <span class="arch-label">内容层</span>
+                    <div class="arch-box">
+                        <span class="arch-item">角色卡池</span>
+                        <span class="arch-item">事件卡池</span>
+                        <span class="arch-item">隐患卡池</span>
+                        <span class="arch-item">剧情线</span>
+                        <span class="arch-item highlight">峰video框架库</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 数据源 -->
+        <div class="datasources">
+            <h2>📚 数据来源</h2>
+            <div class="source-grid">
+                <div class="source-item">
+                    <div class="icon">⚖️</div>
+                    <div class="name">中央纪委警钟</div>
+                    <div class="desc">反腐真实案例</div>
+                    <span class="count">19条素材</span>
+                </div>
+                <div class="source-item">
+                    <div class="icon">📺</div>
+                    <div class="name">峰video</div>
+                    <div class="desc">B站126万粉职场博主</div>
+                    <span class="count">302个视频</span>
+                </div>
+                <div class="source-item">
+                    <div class="icon">💬</div>
+                    <div class="name">知乎/脉脉</div>
+                    <div class="desc">职场社区案例</div>
+                    <span class="count">规划中</span>
+                </div>
+                <div class="source-item">
+                    <div class="icon">📕</div>
+                    <div class="name">小红书</div>
+                    <div class="desc">职场博主案例</div>
+                    <span class="count">规划中</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 核心能力 -->
+        <div class="capabilities">
+            <h2>💪 职场参谋核心能力</h2>
+            <div class="cap-grid">
+                <div class="cap-item">
+                    <div class="num">01</div>
+                    <h4>情境定位</h4>
+                    <p>30秒判断问题本质：权力博弈？责任边界？晋升发展？人际冲突？</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">02</div>
+                    <h4>选项生成</h4>
+                    <p>3-4个选项，每个带短期/中期/风险/峰video点评，帮助用户看清每个选择的后果</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">03</div>
+                    <h4>后果预测</h4>
+                    <p>最好/最坏情况 + 概率分布 + 半年后可能，让决策有据可依</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">04</div>
+                    <h4>话术指导</h4>
+                    <p>针对不同场合（私下/公开/邮件）、不同阶段（事前/事中/事后）的话术模板</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 峰video框架 -->
+        <div class="fengvideo">
+            <h2>🧠 峰video思维框架</h2>
+            <div class="models-grid">
+                <div class="model-item">
+                    <h4>📡 信号理论</h4>
+                    <p>看透权力运作的底牌</p>
+                </div>
+                <div class="model-item">
+                    <h4>⚖️ 契约分工</h4>
+                    <p>关系中的公平天平</p>
+                </div>
+                <div class="model-item">
+                    <h4>🚶 过客主义</h4>
+                    <p>情绪资产的终极保护</p>
+                </div>
+                <div class="model-item">
+                    <h4>🛡️ 信息不对称防御</h4>
+                    <p>对所有人保持不信任</p>
+                </div>
+                <div class="model-item">
+                    <h4>🔧 工具化思维</h4>
+                    <p>人际关系的术与器</p>
+                </div>
+                <div class="model-item">
+                    <h4>🔄 反常识判断</h4>
+                    <p>先推翻再重建</p>
+                </div>
+            </div>
+            <div style="margin-top: 24px; text-align: center;">
+                <p style="color: #ff6b6b; font-weight: bold; margin-bottom: 16px;">八条决策启发式</p>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">重复武器论</span>
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">防御=犹豫=自残</span>
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">音量降70%</span>
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">差不多到位论</span>
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">得罪人安全比例</span>
+                    <span style="background: rgba(255,107,107,0.2); padding: 6px 12px; border-radius: 20px; font-size: 13px;">数字迷惑防御术</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 三大经典场景 -->
+        <div class="capabilities">
+            <h2>🎯 三大经典场景</h2>
+            <div class="cap-grid">
+                <div class="cap-item">
+                    <div class="num">🥇</div>
+                    <h4>领导甩锅</h4>
+                    <p>沉默就是默认，默认就是接受。邮件留痕是职场基本功。</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">🥈</div>
+                    <h4>晋升受阻</h4>
+                    <p>三年第一，晋升给了别人——这个信号说明什么？</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">🥉</div>
+                    <h4>空降领导</h4>
+                    <p>领导一来就动你的业务——他在建立业绩基础，还是觉得你不够格？</p>
+                </div>
+                <div class="cap-item">
+                    <div class="num">🏆</div>
+                    <h4>更多场景</h4>
+                    <p>站队/跨部门推诿/被排挤/加班文化/同事矛盾...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 路线图 -->
+        <div class="roadmap">
+            <h2>🛤️ 发展路线图</h2>
+            <div class="roadmap-timeline">
+                <div class="road-item">
+                    <span class="phase">MVP</span>
+                    <div class="dot"></div>
+                    <h4>工具模式MVP</h4>
+                    <p>职场参谋<br>峰video整合<br>话术模板</p>
+                </div>
+                <div class="road-item">
+                    <span class="phase">Phase 2</span>
+                    <div class="dot" style="background: #ffd93d;"></div>
+                    <h4>飞书接入</h4>
+                    <p>飞书机器人<br>实时咨询<br>案例库扩充</p>
+                </div>
+                <div class="road-item">
+                    <span class="phase">Phase 3</span>
+                    <div class="dot" style="background: #4d96ff;"></div>
+                    <h4>娱乐模式2.0</h4>
+                    <p>剧情线扩展<br>用户案例蒸馏<br>数据飞轮</p>
+                </div>
+                <div class="road-item">
+                    <span class="phase">Phase 4</span>
+                    <div class="dot" style="background: #a855f7;"></div>
+                    <h4>产品化</h4>
+                    <p>小程序/App<br>会员制<br>B端培训</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>暗黑职场 2.0 | 职场老炮顾问 | 峰video思维框架</p>
+            <p style="margin-top: 8px;">"社会凶猛，咱们无路可退，但至少可以少踩几个坑。"</p>
+        </div>
+    </div>
+</body>
+</html>

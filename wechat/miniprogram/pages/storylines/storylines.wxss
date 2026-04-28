@@ -1,0 +1,46 @@
+.storylines-page {
+  padding-bottom: 128rpx;
+}
+
+.free-mode-card {
+  text-align: center;
+  padding: 40rpx 32rpx;
+}
+
+.free-mode-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--color-neon-green);
+  margin-bottom: 8rpx;
+}
+
+.free-mode-desc {
+  font-size: 26rpx;
+}
+
+.storyline-list {
+  margin-top: 32rpx;
+}
+
+.storyline-card {
+  transition: all 0.3s;
+}
+
+.storyline-card.selected {
+  border-color: var(--color-neon-orange);
+}
+
+.storyline-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.storyline-desc {
+  font-size: 26rpx;
+}
+
+.placeholder {
+  text-align: center;
+  padding: 80rpx 0;
+}

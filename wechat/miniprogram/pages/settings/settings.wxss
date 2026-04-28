@@ -1,0 +1,24 @@
+.settings-page {
+  padding-top: 16rpx;
+}
+
+.settings-group {
+  padding: 0;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.footer-info {
+  text-align: center;
+  margin-top: 96rpx;
+}

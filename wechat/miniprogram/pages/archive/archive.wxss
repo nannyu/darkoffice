@@ -1,0 +1,13 @@
+.archive-page {
+  padding-top: 16rpx;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 120rpx 48rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}

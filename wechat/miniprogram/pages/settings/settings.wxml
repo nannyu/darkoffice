@@ -1,0 +1,21 @@
+<view class="container settings-page">
+  <view class="section-title">设置</view>
+
+  <view class="card settings-group">
+    <view class="settings-item" bindtap="onClearCache">
+      <text class="text-primary">清除缓存</text>
+      <text class="text-muted">→</text>
+    </view>
+  </view>
+
+  <view class="card settings-group">
+    <view class="settings-item" bindtap="onAbout">
+      <text class="text-primary">关于暗黑职场</text>
+      <text class="text-muted">→</text>
+    </view>
+  </view>
+
+  <view class="footer-info">
+    <text class="text-muted">暗黑职场 v{{version}}</text>
+  </view>
+</view>

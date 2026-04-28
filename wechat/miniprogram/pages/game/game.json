@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "status-bar": "../../components/status-bar/status-bar",
+    "event-card": "../../components/event-card/event-card",
+    "action-sheet": "../../components/action-sheet/action-sheet",
+    "result-modal": "../../components/result-modal/result-modal",
+    "hazard-strip": "../../components/hazard-strip/hazard-strip",
+    "project-panel": "../../components/project-panel/project-panel"
+  }
+}

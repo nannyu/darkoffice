@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/storylines/storylines",
+    "pages/game/game",
+    "pages/archive/archive",
+    "pages/recap/recap",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#0D0D0D",
+    "navigationBarTitleText": "暗黑职场",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0D0D0D"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#FF4D4F",
+    "backgroundColor": "#0D0D0D",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home_active.png"
+      },
+      {
+        "pagePath": "pages/archive/archive",
+        "text": "存档",
+        "iconPath": "assets/icons/archive.png",
+        "selectedIconPath": "assets/icons/archive_active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "assets/icons/settings.png",
+        "selectedIconPath": "assets/icons/settings_active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

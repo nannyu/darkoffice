@@ -1,0 +1,151 @@
+/* 暗黑职场 — 全局样式 (Cyberpunk Neon) */
+
+/* CSS Variables */
+page {
+  --color-bg-primary: #0D0D0D;
+  --color-bg-secondary: #1A1A2E;
+  --color-bg-card: #16213E;
+  --color-bg-elevated: #1E2A45;
+
+  --color-neon-red: #FF4D4F;
+  --color-neon-orange: #FF7A45;
+  --color-neon-green: #52C41A;
+  --color-neon-blue: #1890FF;
+  --color-neon-yellow: #FAAD14;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A0A0A0;
+  --color-text-muted: #666666;
+
+  --color-hp: #52C41A;
+  --color-en: #1890FF;
+  --color-st: #722ED1;
+  --color-kpi: #FAAD14;
+  --color-risk: #FF4D4F;
+  --color-cor: #FF7A45;
+
+  --font-family: 'PingFang SC', -apple-system, sans-serif;
+
+  --radius-sm: 8rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+
+  --shadow-card: 0 4rpx 24rpx rgba(0, 0, 0, 0.6);
+  --shadow-glow-red: 0 0 20rpx rgba(255, 77, 79, 0.3);
+  --shadow-glow-orange: 0 0 20rpx rgba(255, 122, 69, 0.3);
+  --shadow-glow-green: 0 0 20rpx rgba(82, 196, 26, 0.3);
+}
+
+/* Reset */
+page {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: 28rpx;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Utility classes */
+.container {
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted { color: var(--color-text-muted); }
+.text-neon-red { color: var(--color-neon-red); }
+.text-neon-orange { color: var(--color-neon-orange); }
+.text-neon-green { color: var(--color-neon-green); }
+.text-neon-blue { color: var(--color-neon-blue); }
+
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+  border: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.card-glow-red {
+  border-color: rgba(255, 77, 79, 0.3);
+  box-shadow: var(--shadow-glow-red);
+}
+
+.card-glow-orange {
+  border-color: rgba(255, 122, 69, 0.3);
+  box-shadow: var(--shadow-glow-orange);
+}
+
+.card-glow-green {
+  border-color: rgba(82, 196, 26, 0.3);
+  box-shadow: var(--shadow-glow-green);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-neon-red), #CF1322);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 24rpx 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: var(--shadow-glow-red);
+}
+
+.btn-secondary {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 24rpx 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 24rpx 48rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 24rpx;
+  color: var(--color-text-primary);
+  letter-spacing: 2rpx;
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20rpx rgba(255, 77, 79, 0.3); }
+  50% { box-shadow: 0 0 40rpx rgba(255, 77, 79, 0.6); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(60rpx); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.anim-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.anim-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}

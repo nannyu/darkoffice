@@ -1,0 +1,5 @@
+<view class="event-card card card-glow-red">
+  <view class="event-actor text-neon-orange">{{actor}}</view>
+  <view class="event-title text-primary">{{event}}</view>
+  <view class="event-prompt text-secondary">{{prompt}}</view>
+</view>

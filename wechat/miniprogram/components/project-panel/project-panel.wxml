@@ -1,0 +1,11 @@
+<view class="project-panel" wx:if="{{projects.length > 0}}">
+  <view class="project-item" wx:for="{{projects}}" wx:key="id">
+    <view class="project-header">
+      <text class="project-name text-primary">{{item.name}}</text>
+      <text class="project-progress text-neon-yellow">{{item.progress}}/{{item.target}}</text>
+    </view>
+    <view class="project-track">
+      <view class="project-fill" style="width: {{item.progress / item.target * 100}}%;"></view>
+    </view>
+  </view>
+</view>

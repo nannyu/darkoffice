@@ -1,0 +1,132 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 48rpx 32rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.result-header {
+  font-size: 36rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32rpx;
+  letter-spacing: 4rpx;
+}
+
+.result-dice-area {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.dice-value {
+  font-size: 80rpx;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.result-tier {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+  letter-spacing: 2rpx;
+}
+
+.result-score {
+  font-size: 24rpx;
+}
+
+.delta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding: 24rpx;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  margin-bottom: 32rpx;
+}
+
+.delta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delta-label {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.delta-value {
+  font-size: 26rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-positive {
+  color: var(--color-neon-green);
+}
+
+.delta-negative {
+  color: var(--color-neon-red);
+}
+
+.delta-zero {
+  color: var(--color-text-muted);
+}
+
+/* 档位颜色 */
+.tier-CRITICAL_SUCCESS { color: #52C41A; }
+.tier-SUCCESS { color: #73D13D; }
+.tier-BARELY { color: #FAAD14; }
+.tier-FAIL { color: #FF7A45; }
+.tier-CRITICAL_FAIL { color: #FF4D4F; }
+
+/* 结局 */
+.ending-badge {
+  text-align: center;
+  font-size: 28rpx;
+  letter-spacing: 4rpx;
+  margin-bottom: 16rpx;
+}
+
+.ending-title {
+  text-align: center;
+  font-size: 44rpx;
+  font-weight: 900;
+  margin-bottom: 16rpx;
+  letter-spacing: 4rpx;
+}
+
+.ending-desc {
+  text-align: center;
+  font-size: 28rpx;
+  line-height: 1.7;
+  margin-bottom: 40rpx;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.modal-actions .btn-primary,
+.modal-actions .btn-ghost {
+  width: 100%;
+  max-width: 480rpx;
+}

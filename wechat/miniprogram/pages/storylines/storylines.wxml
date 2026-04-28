@@ -1,0 +1,33 @@
+<view class="container storylines-page">
+  <view class="section-title">剧情库</view>
+
+  <!-- 自由模式 -->
+  <view class="card card-glow-green free-mode-card" bindtap="onFreeMode">
+    <view class="free-mode-title">自由模式</view>
+    <view class="free-mode-desc text-secondary">随机事件，无限回合</view>
+  </view>
+
+  <!-- 剧情线列表 -->
+  <view class="storyline-list" wx:if="{{storylines.length > 0}}">
+    <view
+      class="card storyline-card {{selectedId === item.storyline_id ? 'card-glow-orange selected' : ''}}"
+      wx:for="{{storylines}}"
+      wx:key="storyline_id"
+      data-id="{{item.storyline_id}}"
+      bindtap="onSelectStoryline"
+    >
+      <view class="storyline-title">{{item.title}}</view>
+      <view class="storyline-desc text-secondary">{{item.description}}</view>
+    </view>
+  </view>
+
+  <!-- 占位 -->
+  <view class="placeholder" wx:if="{{storylines.length === 0}}">
+    <view class="text-muted">更多剧情线，敬请期待</view>
+  </view>
+
+  <!-- 开始按钮 -->
+  <view class="btn-primary" bindtap="onStartGame" style="margin-top: 48rpx;">
+    开始游戏
+  </view>
+</view>

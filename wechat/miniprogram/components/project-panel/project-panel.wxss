@@ -1,0 +1,37 @@
+.project-panel {
+  padding: 8rpx 32rpx;
+}
+
+.project-item {
+  margin-bottom: 16rpx;
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.project-name {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.project-progress {
+  font-size: 22rpx;
+}
+
+.project-track {
+  height: 12rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.project-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-neon-yellow), var(--color-neon-orange));
+  border-radius: 6rpx;
+  transition: width 0.5s ease-out;
+}

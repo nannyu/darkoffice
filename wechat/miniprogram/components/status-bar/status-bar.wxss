@@ -1,0 +1,45 @@
+.status-bar {
+  padding: 16rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.bar-label {
+  width: 160rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.bar-name {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.bar-value {
+  font-size: 22rpx;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-track {
+  flex: 1;
+  height: 16rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 8rpx;
+  transition: width 0.5s ease-out;
+}

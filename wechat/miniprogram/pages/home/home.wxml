@@ -1,0 +1,28 @@
+<view class="container home-page">
+  <!-- 标题区 -->
+  <view class="hero anim-fade-in-up">
+    <view class="hero-title">暗黑职场</view>
+    <view class="hero-subtitle">在恶性职场中求生</view>
+    <view class="hero-decoration"></view>
+  </view>
+
+  <!-- 按钮区 -->
+  <view class="action-area">
+    <view class="btn-primary btn-new-game" bindtap="onNewGame">
+      新游戏
+    </view>
+
+    <view class="btn-secondary btn-continue {{hasActiveSession ? '' : 'btn-disabled'}}" bindtap="onContinue">
+      继续
+    </view>
+
+    <view class="btn-ghost" bindtap="onArchive">
+      存档列表
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">
+    <text class="text-muted">v0.1.0-alpha</text>
+  </view>
+</view>

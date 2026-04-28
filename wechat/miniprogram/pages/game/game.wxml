@@ -1,0 +1,49 @@
+<view class="game-page">
+  <!-- 顶部信息栏 -->
+  <view class="game-header">
+    <view class="header-info">
+      <text class="text-secondary">第{{day}}天 · {{timePeriod}}</text>
+      <text class="text-muted">回合 {{turnIndex + 1}}</text>
+    </view>
+  </view>
+
+  <!-- 六维状态栏 -->
+  <status-bar state="{{state}}" />
+
+  <!-- 隐患条 -->
+  <hazard-strip hazards="{{hazards}}" wx:if="{{hazards.length > 0}}" />
+
+  <!-- 项目面板 -->
+  <project-panel projects="{{projects}}" wx:if="{{projects.length > 0}}" />
+
+  <!-- 事件卡 -->
+  <event-card
+    actor="{{eventSummary.actor}}"
+    event="{{eventSummary.event}}"
+    prompt="{{eventSummary.prompt}}"
+  />
+
+  <!-- 风险提示 -->
+  <view class="risk-tip" wx:if="{{riskTip}}">
+    <text>{{riskTip}}</text>
+  </view>
+
+  <!-- 行动选项 -->
+  <action-sheet
+    options="{{options}}"
+    loading="{{loading}}"
+    bind:select="onAction"
+  />
+
+  <!-- 结算弹窗 -->
+  <result-modal
+    show="{{showResult}}"
+    result="{{turnResult}}"
+    state="{{state}}"
+    ended="{{isEnded}}"
+    ending="{{ending}}"
+    bind:close="onResultClose"
+    bind:restart="onRestart"
+    bind:home="onBackHome"
+  />
+</view>

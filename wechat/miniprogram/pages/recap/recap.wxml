@@ -1,0 +1,11 @@
+<view class="container recap-page">
+  <view class="section-title">对局复盘</view>
+
+  <view class="empty-state" wx:if="{{!hasRecap}}">
+    <view class="empty-icon">📊</view>
+    <view class="text-secondary">复盘功能开发中</view>
+    <view class="text-muted" style="margin-top: 16rpx; font-size: 24rpx;">
+      完成一局游戏后可查看详细复盘
+    </view>
+  </view>
+</view>

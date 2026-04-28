@@ -1,0 +1,32 @@
+.hazard-strip {
+  padding: 8rpx 32rpx;
+}
+
+.hazard-scroll {
+  white-space: nowrap;
+}
+
+.hazard-tags {
+  display: inline-flex;
+  gap: 12rpx;
+}
+
+.hazard-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  background: rgba(255, 77, 79, 0.12);
+  border: 1rpx solid rgba(255, 77, 79, 0.3);
+  border-radius: 20rpx;
+}
+
+.hazard-name {
+  font-size: 22rpx;
+  color: var(--color-neon-red);
+}
+
+.hazard-countdown {
+  font-size: 20rpx;
+  color: var(--color-neon-orange);
+}

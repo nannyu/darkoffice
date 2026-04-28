@@ -1,0 +1,21 @@
+<view class="action-sheet">
+  <view class="action-title text-secondary">选择你的行动</view>
+
+  <view class="action-list">
+    <view
+      class="action-btn action-{{item.cssClass}}"
+      wx:for="{{mappedOptions}}"
+      wx:key="index"
+      data-action="{{item.action}}"
+      hover-class="action-btn-hover"
+      bindtap="onSelect"
+    >
+      <view class="action-title-text">{{item.title}}</view>
+      <view class="action-summary text-secondary">{{item.summary}}</view>
+    </view>
+  </view>
+
+  <view class="action-loading" wx:if="{{loading}}">
+    <text class="text-muted">结算中...</text>
+  </view>
+</view>
