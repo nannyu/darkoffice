@@ -154,6 +154,7 @@ function main(): void {
       )
     );
     process.exit(1);
+    return;
   }
 
   if (cmd === "health") {

@@ -22,6 +22,9 @@
     "mechanics:snapshot": "python3 scripts/game_state_cli.py mechanics",
     "mechanics:render": "python3 scripts/render_mechanics_visual.py",
     "sim:balance": "python3 scripts/simulate_balance.py --runs 20 --turns 30",
+    "agents:demo": "tsx src/agents/demo.ts business data/analytics/store-profit-sample.json",
+    "agents:demo:workplace": "tsx src/agents/demo.ts workplace",
+    "typecheck": "tsc --noEmit",
     "test": "npm run skill:health"
   },
   "repository": {

@@ -1,0 +1,9 @@
+[
+  { "period": "2026-04-01", "profit": 12800, "inventory": 94000, "sales": 216, "footTraffic": 820, "discountRate": 0.08, "laborCost": 4200 },
+  { "period": "2026-04-02", "profit": 13450, "inventory": 91000, "sales": 228, "footTraffic": 860, "discountRate": 0.07, "laborCost": 4300 },
+  { "period": "2026-04-03", "profit": 12120, "inventory": 98000, "sales": 205, "footTraffic": 790, "discountRate": 0.11, "laborCost": 4250 },
+  { "period": "2026-04-04", "profit": 14980, "inventory": 87000, "sales": 252, "footTraffic": 930, "discountRate": 0.09, "laborCost": 4550 },
+  { "period": "2026-04-05", "profit": 15860, "inventory": 83000, "sales": 268, "footTraffic": 980, "discountRate": 0.1, "laborCost": 4680 },
+  { "period": "2026-04-06", "profit": 11750, "inventory": 101000, "sales": 198, "footTraffic": 760, "discountRate": 0.13, "laborCost": 4180 },
+  { "period": "2026-04-07", "profit": 14320, "inventory": 89000, "sales": 241, "footTraffic": 900, "discountRate": 0.08, "laborCost": 4460 }
+]

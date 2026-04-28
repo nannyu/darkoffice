@@ -6,7 +6,8 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["skill/**/*.ts"]
+  "include": ["skill/**/*.ts", "src/**/*.ts"]
 }
