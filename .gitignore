@@ -9,3 +9,7 @@ slides.json
 .workbuddy/expert-history.json
 .workbuddy/plans/
 .workbuddy/settings.local.json
+
+# Agent skills installed via `npx skills add ...` (per-user, not committed)
+.agents/
+.claude/skills/

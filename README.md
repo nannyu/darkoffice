@@ -245,14 +245,14 @@ npm run agents:demo:workplace
 
 建议按这个顺序读：
 
-1. [docs/INDEX.md](/Users/niunan/project/darkoffice/docs/INDEX.md)
-2. [docs/project/README.md](/Users/niunan/project/darkoffice/docs/project/README.md)
-3. [docs/architecture/multi-agent-framework.md](/Users/niunan/project/darkoffice/docs/architecture/multi-agent-framework.md)
-4. [docs/project/wechat-mini-program-architecture.md](/Users/niunan/project/darkoffice/docs/project/wechat-mini-program-architecture.md)
-5. [docs/systems/README.md](/Users/niunan/project/darkoffice/docs/systems/README.md)
-6. [docs/visualizations/README.md](/Users/niunan/project/darkoffice/docs/visualizations/README.md)
-7. [docs/content/README.md](/Users/niunan/project/darkoffice/docs/content/README.md)
-8. [docs/collaboration/development-guidelines.md](/Users/niunan/project/darkoffice/docs/collaboration/development-guidelines.md)
+1. [docs/INDEX.md](docs/INDEX.md)
+2. [docs/project/README.md](docs/project/README.md)
+3. [docs/architecture/multi-agent-framework.md](docs/architecture/multi-agent-framework.md)
+4. [docs/project/wechat-mini-program-architecture.md](docs/project/wechat-mini-program-architecture.md)
+5. [docs/systems/README.md](docs/systems/README.md)
+6. [docs/visualizations/README.md](docs/visualizations/README.md)
+7. [docs/content/README.md](docs/content/README.md)
+8. [docs/collaboration/development-guidelines.md](docs/collaboration/development-guidelines.md)
 
 ---
 
@@ -268,13 +268,15 @@ bash scripts/verify_skill.sh
 
 ## 下一步
 
+当前里程碑：**M7（内容规模化生产）**
+
 短期优先级：
 
-1. 把 `codex/multi-agent-framework` 里的微信小程序工程择机合入主线。
-2. 将 `src/agents/` 的输出接入现有卡牌、剧情线和素材库。
-3. 为 Analytics Agent 增加多元回归、异常检测和分组对比。
-4. 为 Execution Agent 增加任务状态、复盘记录和人工确认节点。
-5. 在微信云函数或独立服务中暴露 `runDecision` API。
+1. **内容规模化**：从素材库蒸馏生成更多角色卡/事件卡/隐患卡（目标 ≥50 张）
+2. **剧情线编排**：设计至少 1 条完整剧情线（≥3 幕），测试剧情模式运行
+3. **平衡性验证**：运行 `simulate_balance.py`，按行动类型分析生存率与数值波动
+4. **多 Agent 框架迭代**：将 `src/agents/` 的输出接入现有卡牌、剧情线和素材库
+5. **微信小程序合入**：把 `codex/multi-agent-framework` 里的工程择机合入主线
 
 长期方向：
 

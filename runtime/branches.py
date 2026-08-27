@@ -102,6 +102,46 @@ def match_branch(
     return None
 
 
+def _check_relations(state: dict, cond: dict) -> bool:
+    """检查角色关系值条件（relation_with_CHR_XX_min/max）。"""
+    for key, value in cond.items():
+        if key.startswith("relation_with_") and ("_min" in key or "_max" in key):
+            char_id = key[len("relation_with_"):].split("_")[0]
+            field = f"relation_with_{char_id}"
+            actual = state.get(field)
+            if actual is None:
+                continue
+            min_key = f"{field}_min"
+            max_key = f"{field}_max"
+            if min_key in cond and actual < cond[min_key]:
+                return False
+            if max_key in cond and actual > cond[max_key]:
+                return False
+    return True
+
+
+def _check_intel(state: dict, cond: dict) -> bool:
+    """检查情报掌握条件（has_intel）。"""
+    required = cond.get("has_intel")
+    if not required:
+        return True
+    if isinstance(required, str):
+        required = [required]
+    discovered = set(state.get("discovered_intel", []))
+    return all(r in discovered for r in required)
+
+
+def _check_stances(state: dict, cond: dict) -> bool:
+    """检查隐藏立场揭示条件（has_stance_revealed）。"""
+    required = cond.get("has_stance_revealed")
+    if not required:
+        return True
+    if isinstance(required, str):
+        required = [required]
+    revealed = set(state.get("hidden_stances_revealed", []))
+    return all(r in revealed for r in required)
+
+
 def check_endings(
     endings: list[dict],
     state: dict,
@@ -115,6 +155,13 @@ def check_endings(
     """
     for e in endings:
         cond = e.get("condition", {})
-        if check_condition(cond, None, None, state, turn_logs, turn_index):
-            return e
+        if not check_condition(cond, None, None, state, turn_logs, turn_index):
+            continue
+        if not _check_relations(state, cond):
+            continue
+        if not _check_intel(state, cond):
+            continue
+        if not _check_stances(state, cond):
+            continue
+        return e
     return None

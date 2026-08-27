@@ -88,6 +88,90 @@ def init_db(conn: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(session_id) REFERENCES game_sessions(session_id)
         );
+
+        -- 角色动态状态（每局每个角色的当前值，覆盖更新）
+        CREATE TABLE IF NOT EXISTS character_states (
+            session_id TEXT NOT NULL,
+            character_id TEXT NOT NULL,
+            relation_to_player INTEGER DEFAULT 0,
+            mood TEXT DEFAULT '平静',
+            trust INTEGER DEFAULT 50,
+            stress INTEGER DEFAULT 50,
+            power INTEGER DEFAULT 50,
+            hidden_stance TEXT DEFAULT '',
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (session_id, character_id)
+        );
+
+        -- 角色关系网
+        CREATE TABLE IF NOT EXISTS relation_edges (
+            session_id TEXT NOT NULL,
+            character_a TEXT NOT NULL,
+            character_b TEXT NOT NULL,
+            relation_value INTEGER DEFAULT 0,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (session_id, character_a, character_b)
+        );
+
+        -- 角色状态关键变化日志
+        CREATE TABLE IF NOT EXISTS character_state_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            turn_index INTEGER NOT NULL,
+            character_id TEXT NOT NULL,
+            field_changed TEXT NOT NULL,
+            old_value TEXT,
+            new_value TEXT,
+            reason TEXT,
+            timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- 事件链进度
+        CREATE TABLE IF NOT EXISTS chain_progress (
+            session_id TEXT NOT NULL,
+            chain_id TEXT NOT NULL,
+            current_position INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            next_trigger_turn INTEGER DEFAULT 0,
+            completed_at TEXT,
+            PRIMARY KEY (session_id, chain_id)
+        );
+
+        -- 剧情线推进状态
+        CREATE TABLE IF NOT EXISTS storyline_progress (
+            session_id TEXT NOT NULL,
+            storyline_id TEXT NOT NULL,
+            current_act_index INTEGER DEFAULT 0,
+            act_start_turn INTEGER DEFAULT 0,
+            branch_taken TEXT DEFAULT '',
+            completed INTEGER DEFAULT 0,
+            PRIMARY KEY (session_id, storyline_id)
+        );
+
+        -- Phase 3: 玩家已发现的情报
+        CREATE TABLE IF NOT EXISTS intel_discovered (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            intel_id TEXT NOT NULL,
+            source_character TEXT NOT NULL,
+            target_character TEXT NOT NULL,
+            discovered_at_turn INTEGER NOT NULL,
+            discovered_in_scene TEXT NOT NULL DEFAULT '',
+            discovery_method TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(session_id) REFERENCES game_sessions(session_id)
+        );
+
+        -- Phase 3: 玩家笔记
+        CREATE TABLE IF NOT EXISTS player_notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            note_type TEXT NOT NULL DEFAULT 'character',  -- character / intel / event
+            target_id TEXT NOT NULL DEFAULT '',            -- character_id 或 intel_id
+            content TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(session_id) REFERENCES game_sessions(session_id)
+        );
         """
     )
     _migrate_turn_logs(conn)

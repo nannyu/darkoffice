@@ -62,3 +62,30 @@
 - `darkoffice-skill.md`：第15章新增 §15.7 剧情库与自然语言选择（含选择流程、匹配规则、展示格式）
 - `skill/darkoffice-persistent-skill.md`：新增"剧情库与游戏开始流程"完整操作指令
 - `docs/project/current-status-and-next-step.md`：已完成列表新增"剧情库选择"，推进建议新增"剧情库体验优化"
+
+## 2026-04-23（规则可视化与微信架构）
+
+### 新增功能
+
+- **规则可视化**：`scripts/render_mechanics_visual.py` 可从机制快照生成 `docs/visualizations/game-mechanics.html` 交互页面
+- **微信小程序架构文档**：`docs/project/wechat-mini-program-architecture.md` 定义小程序产品架构、云函数 API、数据模型、迁移路线图
+
+## 2026-04-28（多 Agent 框架 + 文档同步）
+
+### 新增模块
+
+- **多 Agent 决策框架**：`src/agents/` 搭建 Game Agent（行为博弈）、Analytics Agent（数据分析）、Risk Agent（风险评分）、Execution Agent（行动路径）+ Orchestrator（并行编排）
+- **职场参谋 MVP**：`skill/advisor/` 提供 fengvideo 思维框架 + 响应模板
+
+### 项目阶段
+
+- 项目正式进入 **M7（内容规模化生产）** 阶段
+- M0-M6 全部完成，代码审计问题全部修复
+
+### 文档同步
+
+- `docs/collaboration/development-guidelines.md`：全面更新阶段定义、允许/禁止工作、迭代节奏、技术定案结论，移除所有"文档先行/技术未定"过时描述
+- `docs/project/scope-and-milestones.md`：更新当前阶段结论与 3.2 节
+- `docs/project/current-status-and-next-step.md`：更新阶段声明为 M7
+- `docs/INDEX.md`：更新项目状态与优先目标
+- `docs/collaboration/change-log.md`：本文件（补充 M7 启动后的变更记录）
